@@ -11,6 +11,8 @@ import (
 	"runtime"
 )
 
+import "crap/config"
+
 type Blob struct {
 	file   *os.File
 	writer *bufio.Writer
@@ -18,7 +20,7 @@ type Blob struct {
 }
 
 func NewBlob() (*Blob, error) {
-	file, err := ioutil.TempFile(pathTemp, "blob")
+	file, err := ioutil.TempFile(tempPath(), "blob")
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +48,9 @@ func (b *Blob) Store() (string, error) {
 
 	src  := b.file.Name()
 	dest := b.Path()
+	perm := os.FileMode(config.GetInt("store.permissions"))
 
-	if err := os.MkdirAll(path.Dir(dest), defaultPerm); err != nil {
+	if err := os.MkdirAll(path.Dir(dest), perm); err != nil {
 		return "", err
 	}
 
@@ -83,7 +86,7 @@ func (b *Blob) Key() string {
 
 func (b *Blob) Path() string {
 	hash := b.Key()
-	return path.Join(pathBlobs, hash[:2], hash[2:])
+	return path.Join(blobPath(), hash[:2], hash[2:])
 }
 
 // XXX: Encrypt AES

@@ -5,33 +5,46 @@ import (
 	"path"
 )
 
-const (
-	pathStore = "crap"
-	pathIndex = pathStore + "/" + "index"
-	pathBlobs = pathStore + "/" + "blobs"
-	pathTemp  = pathStore + "/" + "tmp"
-
-	defaultPerm = 0700
-)
+import "crap/config"
 
 func Init() error {
-	if err := os.MkdirAll(pathStore, defaultPerm); err != nil {
+	perm := os.FileMode(config.GetInt("store.permissions"))
+
+	if err := os.MkdirAll(indexPath(), perm); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(blobPath(), perm); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(tempPath(), perm); err != nil {
 		return err
 	}
 
-	if err := os.MkdirAll(pathIndex, defaultPerm); err != nil {
+	if err := cleanTempDir(); err != nil {
 		return err
 	}
 
-	if err := os.MkdirAll(pathBlobs, defaultPerm); err != nil {
-		return err
-	}
+	return nil
+}
 
-	if err := os.MkdirAll(pathTemp, defaultPerm); err != nil {
-		return err
-	}
+func crapPath() string {
+	return path.Join(config.GetString("store.path"), "crap")
+}
 
-	dir, err := os.Open(pathTemp)
+func indexPath() string {
+	return path.Join(crapPath(), "index")
+}
+
+func blobPath() string {
+	return path.Join(crapPath(), "blobs")
+}
+
+func tempPath() string {
+	return path.Join(crapPath(), "tmp")
+}
+
+func cleanTempDir() error {
+	dir, err := os.Open(tempPath())
 	if err != nil {
 		return err
 	}
@@ -43,7 +56,7 @@ func Init() error {
 	}
 
 	for _, t := range temps {
-		if err := os.Remove(path.Join(pathTemp, t)); err != nil {
+		if err := os.Remove(path.Join(tempPath(), t)); err != nil {
 			return err
 		}
 	}
