@@ -58,16 +58,7 @@ func (b *Blob) Store() (string, error) {
 		return "", err
 	}
 
-	dir, err := os.Open(path.Dir(dest))
-	if err != nil {
-		return "", err
-	}
-	defer dir.Close()
-
-	if err := dir.Sync(); err != nil {
-		return "", err
-	}
-
+	SyncFile(path.Dir(dest))
 	return b.Key(), nil
 }
 

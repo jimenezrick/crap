@@ -20,7 +20,7 @@ func Init() error {
 		return err
 	}
 
-	if err := cleanTempDir(); err != nil {
+	if err := cleanDir(tempPath()); err != nil {
 		return err
 	}
 
@@ -43,8 +43,8 @@ func tempPath() string {
 	return path.Join(crapPath(), "tmp")
 }
 
-func cleanTempDir() error {
-	dir, err := os.Open(tempPath())
+func cleanDir(name string) error {
+	dir, err := os.Open(name)
 	if err != nil {
 		return err
 	}
@@ -56,9 +56,23 @@ func cleanTempDir() error {
 	}
 
 	for _, t := range temps {
-		if err := os.Remove(path.Join(tempPath(), t)); err != nil {
+		if err := os.Remove(path.Join(name, t)); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func SyncFile(name string) error {
+	file, err := os.Open(name)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if err := file.Sync(); err != nil {
+		return err
 	}
 
 	return nil
