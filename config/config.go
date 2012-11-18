@@ -1,6 +1,6 @@
 package config
 
-var conf map[string] interface{} = make(map[string] interface{})
+var conf map[string]interface{} = make(map[string]interface{})
 
 func Set(key string, value interface{}) {
 	conf[key] = value

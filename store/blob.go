@@ -1,13 +1,13 @@
 package store
 
 import (
-	"fmt"
-	"path"
-	"os"
-	"io/ioutil"
 	"bufio"
-	"hash"
 	"crypto/sha1"
+	"fmt"
+	"hash"
+	"io/ioutil"
+	"os"
+	"path"
 	"runtime"
 )
 
@@ -16,7 +16,7 @@ import "crap/config"
 type Blob struct {
 	file   *os.File
 	writer *bufio.Writer
-	hash    hash.Hash
+	hash   hash.Hash
 }
 
 func NewBlob() (*Blob, error) {
@@ -46,7 +46,7 @@ func (b *Blob) Store() (string, error) {
 		return "", err
 	}
 
-	src  := b.file.Name()
+	src := b.file.Name()
 	dest := b.Path()
 	perm := os.FileMode(config.GetInt("store.permissions"))
 
