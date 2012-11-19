@@ -12,6 +12,5 @@ func IsErrClosing(err error) bool {
 	if opErr, ok := err.(*net.OpError); ok {
 		return opErr.Err.Error() == ErrClosing.Error()
 	}
-
 	return false
 }

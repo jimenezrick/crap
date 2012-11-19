@@ -12,17 +12,17 @@ import "crap/config"
 var errJSONSize error = errors.New("crap/net: JSON frame too big")
 var errMoreData error = errors.New("crap/net: expecting more frame data")
 
-func readFrameSize(r io.Reader) (size uint32, err error) {
-	err = binary.Read(r, binary.BigEndian, &size)
+func (c conn) readFrameSize() (size uint32, err error) {
+	err = binary.Read(c, binary.BigEndian, &size)
 	return
 }
 
-func writeFrameSize(w io.Writer, size uint32) error {
-	return binary.Write(w, binary.BigEndian, size)
+func (c conn) writeFrameSize(size uint32) error {
+	return binary.Write(c, binary.BigEndian, size)
 }
 
-func readFrameBody(r io.Reader) ([]byte, error) {
-	size, err := readFrameSize(r)
+func (c conn) readFrameBody() ([]byte, error) {
+	size, err := c.readFrameSize()
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +32,7 @@ func readFrameBody(r io.Reader) ([]byte, error) {
 	}
 
 	buf := make([]byte, size)
-
-	n, err := io.ReadFull(r, buf)
+	n, err := io.ReadFull(c, buf)
 	if uint32(n) != size {
 		return nil, errMoreData
 	} else if err != nil {
@@ -43,12 +42,12 @@ func readFrameBody(r io.Reader) ([]byte, error) {
 	return buf, nil
 }
 
-func writeFrameBody(w io.Writer, body []byte) error {
-	if err := writeFrameSize(w, uint32(len(body))); err != nil {
+func (c conn) writeFrameBody(body []byte) error {
+	if err := c.writeFrameSize(uint32(len(body))); err != nil {
 		return err
 	}
 
-	_, err := w.Write(body)
+	_, err := c.Write(body)
 	if err != nil {
 		return err
 	}
@@ -56,8 +55,8 @@ func writeFrameBody(w io.Writer, body []byte) error {
 	return nil
 }
 
-func ReadJSONFrame(r io.Reader, obj interface{}) error {
-	buf, err := readFrameBody(r)
+func (c conn) ReadJSONFrame(obj interface{}) error {
+	buf, err := c.readFrameBody()
 	if err != nil {
 		return err
 	}
@@ -69,27 +68,27 @@ func ReadJSONFrame(r io.Reader, obj interface{}) error {
 	return nil
 }
 
-func WriteJSONFrame(w io.Writer, obj interface{}) error {
+func (c conn) WriteJSONFrame(obj interface{}) error {
 	body, err := json.Marshal(obj)
 	if err != nil {
 		return err
 	}
 
-	err = writeFrameBody(w, body)
+	err = c.writeFrameBody(body)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return c.Flush()
 }
 
-func ReadBlobFrameTo(r io.Reader, w io.Writer) error {
-	size, err := readFrameSize(r)
+func (c conn) ReadBlobFrameTo(to io.Writer) error {
+	size, err := c.readFrameSize()
 	if err != nil {
 		return err
 	}
 
-	n, err := io.CopyN(w, r, int64(size))
+	n, err := io.CopyN(to, c, int64(size))
 	if n != int64(size) {
 		return errMoreData
 	} else if err != nil {
@@ -99,16 +98,16 @@ func ReadBlobFrameTo(r io.Reader, w io.Writer) error {
 	return nil
 }
 
-func WriteBlobFrameFrom(w io.Writer, r io.Reader, size uint32) error {
-	err := writeFrameSize(w, size)
+func (c conn) WriteBlobFrameFrom(from io.Reader, size uint32) error {
+	err := c.writeFrameSize(size)
 	if err != nil {
 		return err
 	}
 
-	_, err = io.CopyN(w, r, int64(size))
+	_, err = io.CopyN(c, from, int64(size))
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return c.Flush()
 }

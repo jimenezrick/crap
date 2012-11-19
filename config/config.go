@@ -11,7 +11,6 @@ func get(key string) interface{} {
 	if !ok {
 		panic("crap/config: non existent key")
 	}
-
 	return value
 }
 
@@ -20,7 +19,6 @@ func GetInt(key string) int {
 	if !ok {
 		panic("crap/config: non integer value")
 	}
-
 	return value
 }
 
@@ -29,6 +27,5 @@ func GetString(key string) string {
 	if !ok {
 		panic("crap/config: non string value")
 	}
-
 	return value
 }

@@ -1,8 +1,6 @@
 package network
 
 import (
-	"io"
-	"bufio"
 	"net"
 	"log"
 )
@@ -12,11 +10,15 @@ import (
 	"crap/store"
 )
 
-type Server struct {
-	listener net.Listener
+type server struct {
+	net.Listener
 }
 
-func (s *Server) Start() error {
+func NewServer() *server {
+	return new(server)
+}
+
+func (s *server) Start() error {
 	lis, err := net.Listen("tcp", config.GetString("network.listen_address"))
 	if err != nil {
 		return err
@@ -24,64 +26,57 @@ func (s *Server) Start() error {
 
 	go func() {
 		for {
-			conn, err := lis.Accept()
+			sock, err := lis.Accept()
 			if IsErrClosing(err) {
 				return
 			} else if err != nil {
 				panic(err)
 			}
 
-			go handleConnection(conn)
+			conn := newConn(sock)
+			go conn.handleConnection()
 		}
 	}()
 
-	s.listener = lis
+	s.Listener = lis
 	return nil
 }
 
-func (s *Server) Stop() error {
-	return s.listener.Close()
+func (s *server) Stop() error {
+	return s.Close()
 }
 
 // XXX XXX XXX
+func (c conn) handleConnection() {
+	defer c.Close()
 
-//
-// XXX: Crear una structura para la conexion y poner como metodos lo que hay en frame.go
-//
-func handleConnection(conn net.Conn) {
-	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
-	var req Request
-
-	defer conn.Close()
-
-	if err := ReadJSONFrame(rw, &req); err != nil {
-		log.Print("error:", err)
+	var req request
+	if err := c.ReadJSONFrame(&req); err != nil {
+		log.Print("Error:", err)
 		return
 	}
+	log.Print("Request:", req)
 
-	log.Print("request:", req)
-
-	switch req.Request {
+	switch req.Req {
 	case "store":
-		handleStore(req, rw)
+		key, err := c.handleStore(req)
+		if err != nil {
+			log.Print("Error:", err)
+		}
+		log.Print("Key:", key)
 	default:
-		log.Print("not implemented!")
+		log.Print("Error: not implemented")
 		return
 	}
 }
 
-
-
-
-
-
-func handleStore(req Request, r io.Reader) (string, error) {
+func (c conn) handleStore(req request) (string, error) {
 	blob, err := store.NewBlob()
 	if err != nil {
 		return "", err
 	}
 
-	err = ReadBlobFrameTo(r, blob)
+	err = c.ReadBlobFrameTo(blob)
 	if err != nil {
 		blob.Abort()
 		return "", err
@@ -98,31 +93,3 @@ func handleStore(req Request, r io.Reader) (string, error) {
 	return key, nil
 }
 // XXX XXX XXX
-
-
-
-
-type Request struct {
-	Request string
-	Key string
-}
-
-type Result struct {
-	Result  string
-	Info string
-}
-
-//func (r *Request) sanitizeRequest() error {
-//        if r.Request != "store" {
-//                return errors.New("invalid request")
-//        }
-//}
-
-
-
-// {
-//         request: store
-//         key: 43874536563475783475374
-//         result: ok | error
-//         info: No such blob
-// }

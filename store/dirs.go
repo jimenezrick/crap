@@ -9,7 +9,6 @@ import "crap/config"
 
 func Init() error {
 	perm := os.FileMode(config.GetInt("store.permissions"))
-
 	if err := os.MkdirAll(indexPath(), perm); err != nil {
 		return err
 	}
@@ -20,11 +19,10 @@ func Init() error {
 		return err
 	}
 
-	if err := CleanDir(tempPath()); err != nil {
+	if err := cleanDir(tempPath()); err != nil {
 		return err
 	}
-
-	if err := SyncDir(crapPath()); err != nil {
+	if err := syncDir(crapPath()); err != nil {
 		return err
 	}
 
@@ -47,7 +45,7 @@ func tempPath() string {
 	return path.Join(crapPath(), "tmp")
 }
 
-func CleanDir(name string) error {
+func cleanDir(name string) error {
 	dir, err := os.Open(name)
 	if err != nil {
 		return err
@@ -68,7 +66,7 @@ func CleanDir(name string) error {
 	return nil
 }
 
-func SyncDir(name string) error {
+func syncDir(name string) error {
 	dir, err := os.Open(name)
 	if err != nil {
 		return err

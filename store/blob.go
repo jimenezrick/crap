@@ -17,32 +17,32 @@ import (
 
 import "crap/config"
 
-type Blob struct {
+type blob struct {
 	file   *os.File
 	writer *bufio.Writer
 	hash   hash.Hash
 }
 
-func NewBlob() (*Blob, error) {
+func NewBlob() (*blob, error) {
 	file, err := ioutil.TempFile(tempPath(), "blob")
 	if err != nil {
 		return nil, err
 	}
 
-	blob := Blob{file, bufio.NewWriter(file), sha1.New()}
-	runtime.SetFinalizer(&blob, func(b *Blob) {
+	b := blob{file, bufio.NewWriter(file), sha1.New()}
+	runtime.SetFinalizer(&b, func(b *blob) {
 		os.Remove(b.file.Name())
 	})
 
-	return &blob, nil
+	return &b, nil
 }
 
-func (b *Blob) Write(buf []byte) (int, error) {
+func (b *blob) Write(buf []byte) (int, error) {
 	b.hash.Write(buf)
 	return b.writer.Write(buf)
 }
 
-func (b *Blob) Store() (string, error) {
+func (b *blob) Store() (string, error) {
 	defer b.file.Close()
 	b.writer.Flush()
 
@@ -62,7 +62,7 @@ func (b *Blob) Store() (string, error) {
 		return "", err
 	}
 
-	if err := SyncDir(path.Dir(dest)); err != nil {
+	if err := syncDir(path.Dir(dest)); err != nil {
 		return "", err
 	}
 
@@ -70,7 +70,7 @@ func (b *Blob) Store() (string, error) {
 	return b.Key(), nil
 }
 
-func (b *Blob) Abort() error {
+func (b *blob) Abort() error {
 	if err := b.file.Close(); err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (b *Blob) Abort() error {
 	return nil
 }
 
-func (b *Blob) Size() (int64, error) {
+func (b *blob) Size() (int64, error) {
 	info, err := b.file.Stat()
 	if err != nil {
 		return 0, err
@@ -92,11 +92,11 @@ func (b *Blob) Size() (int64, error) {
 	return info.Size(), nil
 }
 
-func (b *Blob) Key() string {
+func (b *blob) Key() string {
 	return fmt.Sprintf("%x", b.hash.Sum(nil))
 }
 
-func (b *Blob) Path() string {
+func (b *blob) Path() string {
 	hash := b.Key()
 	return path.Join(blobPath(), hash[:2], hash[2:])
 }

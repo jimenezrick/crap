@@ -7,8 +7,8 @@ import (
 
 import (
 	"crap/config"
-	"crap/network"
 	"crap/store"
+	"crap/network"
 )
 
 func init() {
@@ -20,7 +20,7 @@ func init() {
 }
 
 func main() {
-	if len(os.Args) == 2 {
+	if len(os.Args) == 3 {
 		client()
 	} else {
 		server()
@@ -28,38 +28,31 @@ func main() {
 }
 
 func server() {
-	store.Init()
+	if err := store.Init(); err != nil {
+		panic(err)
+	}
 
-	var serv network.Server
-
+	serv := network.NewServer()
 	if err := serv.Start(); err != nil {
 		panic(err)
 	}
 
-	time.Sleep(1000 * time.Second)
-	serv.Stop()
+	time.Sleep(100 * time.Second)
+	if err := serv.Stop(); err != nil {
+		panic(err)
+	}
 	time.Sleep(3 * time.Second)
 }
 
 func client() {
-	conn, err := network.Connect("localhost:9000")
+	conn, err := network.Connect(os.Args[1])
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
-
-	req := network.Request{"store", "foobar"}
-	file, err := os.Open(os.Args[1])
-	if err != nil {
+	if err = conn.StoreBlob(os.Args[2]); err != nil {
 		panic(err)
 	}
-	defer file.Close()
-
-	info, err := file.Stat()
-	if err != nil {
+	if err = conn.Close(); err != nil {
 		panic(err)
 	}
-
-	network.WriteJSONFrame(conn, req)
-	network.WriteBlobFrameFrom(conn, file, uint32(info.Size()))
 }
