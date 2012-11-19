@@ -48,6 +48,8 @@ func handleConnection(conn net.Conn) {
 	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	var req Request
 
+	defer conn.Close()
+
 	if err := ReadJSONFrame(rw, &req); err != nil {
 		log.Print("error:", err)
 		return
@@ -59,10 +61,9 @@ func handleConnection(conn net.Conn) {
 	case "store":
 		handleStore(req, rw)
 	default:
-		log.Print("ERROR")
+		log.Print("not implemented!")
+		return
 	}
-
-	conn.Close()
 }
 
 
@@ -76,7 +77,7 @@ func handleStore(req Request, r io.Reader) (string, error) {
 		return "", err
 	}
 
-	err = CopyBlobFrame(blob, r)
+	err = ReadBlobFrameTo(r, blob)
 	if err != nil {
 		blob.Abort()
 		return "", err
@@ -87,6 +88,8 @@ func handleStore(req Request, r io.Reader) (string, error) {
 		blob.Abort()
 		return "", err
 	}
+
+	// XXX: Check req.Key with key
 
 	return key, nil
 }
