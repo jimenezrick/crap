@@ -62,7 +62,11 @@ func (b *Blob) Store() (string, error) {
 		return "", err
 	}
 
-	SyncFile(path.Dir(dest))
+	if err := SyncDir(path.Dir(dest)); err != nil {
+		return "", err
+	}
+
+	runtime.SetFinalizer(b, nil)
 	return b.Key(), nil
 }
 
@@ -75,6 +79,7 @@ func (b *Blob) Abort() error {
 		return err
 	}
 
+	runtime.SetFinalizer(b, nil)
 	return nil
 }
 
