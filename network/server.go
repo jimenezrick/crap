@@ -17,7 +17,7 @@ type Server struct {
 }
 
 func (s *Server) Start() error {
-	lis, err := net.Listen("tcp", config.GetString("net.listen_address"))
+	lis, err := net.Listen("tcp", config.GetString("network.listen_address"))
 	if err != nil {
 		return err
 	}
@@ -44,6 +44,10 @@ func (s *Server) Stop() error {
 }
 
 // XXX XXX XXX
+
+//
+// XXX: Crear una structura para la conexion y poner como metodos lo que hay en frame.go
+//
 func handleConnection(conn net.Conn) {
 	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	var req Request

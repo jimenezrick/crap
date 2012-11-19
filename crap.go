@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"os"
+	"time"
+)
 
 import (
 	"crap/config"
@@ -17,6 +20,14 @@ func init() {
 }
 
 func main() {
+	if len(os.Args) == 2 {
+		client()
+	} else {
+		server()
+	}
+}
+
+func server() {
 	store.Init()
 
 	var serv network.Server
@@ -25,7 +36,30 @@ func main() {
 		panic(err)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(1000 * time.Second)
 	serv.Stop()
 	time.Sleep(3 * time.Second)
+}
+
+func client() {
+	conn, err := network.Connect("localhost:9000")
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	req := network.Request{"store", "foobar"}
+	file, err := os.Open(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	info, err := file.Stat()
+	if err != nil {
+		panic(err)
+	}
+
+	network.WriteJSONFrame(conn, req)
+	network.WriteBlobFrameFrom(conn, file, uint32(info.Size()))
 }

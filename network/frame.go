@@ -27,7 +27,7 @@ func readFrameBody(r io.Reader) ([]byte, error) {
 		return nil, err
 	}
 
-	if size > uint32(config.GetInt("net.max_json_frame_size")) {
+	if size > uint32(config.GetInt("network.max_json_frame_size")) {
 		return nil, errJSONSize
 	}
 
