@@ -1,9 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"net"
 	"time"
-	"bytes"
 )
 
 const (
@@ -35,7 +35,7 @@ func Discover(name string) (nodes []string, err error) {
 
 	go func() {
 		for {
-			_, err := conn.WriteTo([]byte("service_request:" + name), gaddr)
+			_, err := conn.WriteTo([]byte("service_request:"+name), gaddr)
 			if err != nil && err.Error() == closed_connection_error {
 				return
 			} else if err != nil {
@@ -46,7 +46,7 @@ func Discover(name string) (nodes []string, err error) {
 	}()
 
 	nodes = make([]string, 0, 16)
-	responses := make(map[string] bool)
+	responses := make(map[string]bool)
 	buf := make([]byte, 2048)
 
 	for {
@@ -60,7 +60,7 @@ func Discover(name string) (nodes []string, err error) {
 			return nil, uerr
 		}
 
-		if bytes.Equal(buf[:n], []byte("service_offer:" + name)) {
+		if bytes.Equal(buf[:n], []byte("service_offer:"+name)) {
 			responses[addr.IP.String()] = true
 		}
 	}

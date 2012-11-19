@@ -1,8 +1,8 @@
 package network
 
 import (
-	"net"
 	"log"
+	"net"
 )
 
 import (
@@ -92,4 +92,5 @@ func (c conn) handleStore(req request) (string, error) {
 
 	return key, nil
 }
+
 // XXX XXX XXX

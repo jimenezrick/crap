@@ -1,10 +1,10 @@
 package network
 
 import (
-	"os"
-	"io"
 	"bufio"
+	"io"
 	"net"
+	"os"
 )
 
 type conn struct {

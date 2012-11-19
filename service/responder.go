@@ -18,10 +18,10 @@ type cmd struct {
 }
 
 type Responder struct {
-	gaddr  *net.UDPAddr
-	conn   *net.UDPConn
+	gaddr   *net.UDPAddr
+	conn    *net.UDPConn
 	cmdChan chan cmd
-	table   map[string] bool
+	table   map[string]bool
 }
 
 func (res *Responder) Start() error {
@@ -35,7 +35,7 @@ func (res *Responder) Start() error {
 		return err
 	}
 
-	*res = Responder{gaddr, conn, make(chan cmd), make(map[string] bool)}
+	*res = Responder{gaddr, conn, make(chan cmd), make(map[string]bool)}
 
 	go res.responderLoop()
 	go res.socketLoop()
@@ -69,7 +69,7 @@ func (res *Responder) responderLoop() {
 			if strings.HasPrefix(cmd.serv, prefix) {
 				cmd.serv = cmd.serv[len(prefix):]
 				if res.table[cmd.serv] {
-					_, err := res.conn.WriteTo([]byte("service_offer:" + cmd.serv), res.gaddr)
+					_, err := res.conn.WriteTo([]byte("service_offer:"+cmd.serv), res.gaddr)
 					if err != nil {
 						panic(err)
 					}

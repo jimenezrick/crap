@@ -1,10 +1,10 @@
 package network
 
 import (
-	"io"
-	"errors"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
+	"io"
 )
 
 import "crap/config"
