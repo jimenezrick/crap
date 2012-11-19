@@ -1,5 +1,9 @@
 package store
 
+// XXX: Encrypt AES
+// XXX: Conn SSL
+// XXX: Retrieve(key string) *Blob
+
 import (
 	"bufio"
 	"crypto/sha1"
@@ -62,6 +66,18 @@ func (b *Blob) Store() (string, error) {
 	return b.Key(), nil
 }
 
+func (b *Blob) Abort() error {
+	if err := b.file.Close(); err != nil {
+		return err
+	}
+
+	if err := os.Remove(b.file.Name()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (b *Blob) Size() (int64, error) {
 	info, err := b.file.Stat()
 	if err != nil {
@@ -79,8 +95,3 @@ func (b *Blob) Path() string {
 	hash := b.Key()
 	return path.Join(blobPath(), hash[:2], hash[2:])
 }
-
-// XXX: Encrypt AES
-// XXX: Conn SSL
-
-// XXX: Retrieve(key string) *Blob

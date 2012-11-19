@@ -1,7 +1,11 @@
 package network
 
-import "net"
-import "fmt" // XXX: Remove
+import (
+	"io"
+	"bufio"
+	"net"
+	"log"
+)
 
 import "crap/config"
 
@@ -38,19 +42,35 @@ func (s *Server) Stop() error {
 
 // XXX XXX XXX
 func handleConnection(conn net.Conn) {
-	// XXX: handleRequest()
-	for {
-		var req request
+	var req request
 
-		err := ReadJSONFrame(conn, &req)
-		if err != nil {
-			fmt.Println("error:", err)
-			return
-		}
+	bufConn := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 
-		fmt.Println("request:", req)
+	if err := ReadJSONFrame(bufConn, &req); err != nil {
+		log.Print("error:", err)
+		return
 	}
+
+	log.Print("request:", req)
+
+	switch req.Req {
+	case "store":
+		handleStore(req, bufConn)
+	default:
+		log.Print("ERROR")
+	}
+
+	conn.Close()
 }
+
+
+
+func handleStore(req request, conn io.ReadWriter) error {
+	return nil // XXX
+}
+
+
+
 // XXX XXX XXX
 
 
@@ -66,11 +86,11 @@ type result struct {
 	Info string
 }
 
-func (r *request) sanitizeRequest() error {
-	if r.Req != "store" {
-		return errors.New("invalid request")
-	}
-}
+//func (r *request) sanitizeRequest() error {
+//        if r.Req != "store" {
+//                return errors.New("invalid request")
+//        }
+//}
 
 
 
