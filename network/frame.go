@@ -49,7 +49,7 @@ func ReadJSONFrame(r io.Reader, obj interface{}) error {
 	return nil
 }
 
-func CopyBlobFrame(r io.Reader, w io.Writer) error {
+func CopyBlobFrame(w io.Writer, r io.Reader) error {
 	size, err := readFrameSize(r)
 	if err != nil {
 		return err

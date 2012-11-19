@@ -7,7 +7,10 @@ import (
 	"log"
 )
 
-import "crap/config"
+import (
+	"crap/config"
+	"crap/store"
+)
 
 type Server struct {
 	listener net.Listener
@@ -42,20 +45,19 @@ func (s *Server) Stop() error {
 
 // XXX XXX XXX
 func handleConnection(conn net.Conn) {
-	var req request
+	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
+	var req Request
 
-	bufConn := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
-
-	if err := ReadJSONFrame(bufConn, &req); err != nil {
+	if err := ReadJSONFrame(rw, &req); err != nil {
 		log.Print("error:", err)
 		return
 	}
 
 	log.Print("request:", req)
 
-	switch req.Req {
+	switch req.Request {
 	case "store":
-		handleStore(req, bufConn)
+		handleStore(req, rw)
 	default:
 		log.Print("ERROR")
 	}
@@ -65,29 +67,46 @@ func handleConnection(conn net.Conn) {
 
 
 
-func handleStore(req request, conn io.ReadWriter) error {
-	return nil // XXX
+
+
+
+func handleStore(req Request, r io.Reader) (string, error) {
+	blob, err := store.NewBlob()
+	if err != nil {
+		return "", err
+	}
+
+	err = CopyBlobFrame(blob, r)
+	if err != nil {
+		blob.Abort()
+		return "", err
+	}
+
+	key, err := blob.Store()
+	if err != nil {
+		blob.Abort()
+		return "", err
+	}
+
+	return key, nil
 }
-
-
-
 // XXX XXX XXX
 
 
 
 
-type request struct {
-	Req string
+type Request struct {
+	Request string
 	Key string
 }
 
-type result struct {
-	Res  string
+type Result struct {
+	Result  string
 	Info string
 }
 
-//func (r *request) sanitizeRequest() error {
-//        if r.Req != "store" {
+//func (r *Request) sanitizeRequest() error {
+//        if r.Request != "store" {
 //                return errors.New("invalid request")
 //        }
 //}
