@@ -1,6 +1,6 @@
 package store
 
-// XXX: create(O_EXCLUSIVE) de file that is going to be renamed
+// XXX: create(O_EXCLUSIVE) the file that is going to be renamed, as a lock for the destination
 
 // XXX: Encrypt AES
 // XXX: Conn SSL
@@ -17,34 +17,33 @@ import (
 	"runtime"
 )
 
-import "crap/config"
-
-type blob struct {
+type Blob struct {
+	store  Store
 	file   *os.File
 	writer *bufio.Writer
 	hash   hash.Hash
 }
 
-func NewBlob() (*blob, error) {
-	file, err := ioutil.TempFile(tempPath(), "blob")
+func (s Store) NewBlob() (*Blob, error) {
+	file, err := ioutil.TempFile(s.tempPath(), "blob")
 	if err != nil {
 		return nil, err
 	}
 
-	b := blob{file, bufio.NewWriter(file), sha1.New()}
-	runtime.SetFinalizer(&b, func(b *blob) {
+	b := Blob{s, file, bufio.NewWriter(file), sha1.New()}
+	runtime.SetFinalizer(&b, func(b *Blob) {
 		os.Remove(b.file.Name())
 	})
 
 	return &b, nil
 }
 
-func (b *blob) Write(buf []byte) (int, error) {
+func (b Blob) Write(buf []byte) (int, error) {
 	b.hash.Write(buf)
 	return b.writer.Write(buf)
 }
 
-func (b *blob) Store() (string, error) {
+func (b Blob) Store() (string, error) {
 	defer b.file.Close()
 	b.writer.Flush()
 
@@ -54,16 +53,13 @@ func (b *blob) Store() (string, error) {
 
 	src := b.file.Name()
 	dest := b.Path()
-	perm := os.FileMode(config.GetInt("store.permissions"))
 
-	if err := os.MkdirAll(path.Dir(dest), perm); err != nil {
+	if err := os.MkdirAll(path.Dir(dest), b.store.perm); err != nil {
 		return "", err
 	}
-
 	if err := os.Rename(src, dest); err != nil {
 		return "", err
 	}
-
 	if err := syncDir(path.Dir(dest)); err != nil {
 		return "", err
 	}
@@ -72,11 +68,10 @@ func (b *blob) Store() (string, error) {
 	return b.Key(), nil
 }
 
-func (b *blob) Abort() error {
+func (b Blob) Abort() error {
 	if err := b.file.Close(); err != nil {
 		return err
 	}
-
 	if err := os.Remove(b.file.Name()); err != nil {
 		return err
 	}
@@ -85,20 +80,19 @@ func (b *blob) Abort() error {
 	return nil
 }
 
-func (b *blob) Size() (int64, error) {
+func (b Blob) Size() (int64, error) {
 	info, err := b.file.Stat()
 	if err != nil {
 		return 0, err
 	}
-
 	return info.Size(), nil
 }
 
-func (b *blob) Key() string {
+func (b Blob) Key() string {
 	return fmt.Sprintf("%x", b.hash.Sum(nil))
 }
 
-func (b *blob) Path() string {
+func (b Blob) Path() string {
 	hash := b.Key()
-	return path.Join(blobPath(), hash[:2], hash[2:])
+	return path.Join(b.store.blobPath(), hash[:2], hash[2:])
 }

@@ -5,46 +5,25 @@ import (
 	"path"
 )
 
-import "crap/kvmap"
-
-type Store struct {
-	path string
-	perm os.FileMode
-}
-
-func New(config kvmap.KVMap) *Store {
-	path, err := config.GetString("store.path")
-	if err != nil {
-		panic(err)
-	}
-	perm, err := config.GetInt("store.permissions")
-	if err != nil {
-		panic(err)
-	}
-
-	s := Store{path, os.FileMode(perm)}
-	s.createDirs()
-
-	return &s
-}
-
-func (s Store) createDirs() {
+func (s Store) createDirs() error {
 	if err := os.MkdirAll(s.indexPath(), s.perm); err != nil {
-		panic(err)
+		return err
 	}
 	if err := os.MkdirAll(s.blobPath(), s.perm); err != nil {
-		panic(err)
+		return err
 	}
 	if err := os.MkdirAll(s.tempPath(), s.perm); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := cleanDir(s.tempPath()); err != nil {
-		panic(err)
+		return err
 	}
 	if err := syncDir(s.crapPath()); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 func (s Store) crapPath() string {
