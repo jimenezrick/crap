@@ -5,44 +5,58 @@ import (
 	"path"
 )
 
-import "crap/config"
+import "crap/kvmap"
 
-func Init() error {
-	perm := os.FileMode(config.GetInt("store.permissions"))
-	if err := os.MkdirAll(indexPath(), perm); err != nil {
-		return err
-	}
-	if err := os.MkdirAll(blobPath(), perm); err != nil {
-		return err
-	}
-	if err := os.MkdirAll(tempPath(), perm); err != nil {
-		return err
-	}
-
-	if err := cleanDir(tempPath()); err != nil {
-		return err
-	}
-	if err := syncDir(crapPath()); err != nil {
-		return err
-	}
-
-	return nil
+type Store struct {
+	path string
+	perm os.FileMode
 }
 
-func crapPath() string {
-	return path.Join(config.GetString("store.path"), "crap")
+func New(config kvmap.KVMap) *Store {
+	path, err := config.GetString("store.path")
+	if err != nil {
+		panic(err)
+	}
+	perm, err := config.GetInt("store.permissions")
+	if err != nil {
+		panic(err)
+	}
+	s := Store{path, os.FileMode(perm)}
+
+	if err := os.MkdirAll(s.indexPath(), s.perm); err != nil {
+		panic(err)
+	}
+	if err := os.MkdirAll(s.blobPath(), s.perm); err != nil {
+		panic(err)
+	}
+	if err := os.MkdirAll(s.tempPath(), s.perm); err != nil {
+		panic(err)
+	}
+
+	if err := cleanDir(s.tempPath()); err != nil {
+		panic(err)
+	}
+	if err := syncDir(s.crapPath()); err != nil {
+		panic(err)
+	}
+
+	return &s
 }
 
-func indexPath() string {
-	return path.Join(crapPath(), "index")
+func (s Store) crapPath() string {
+	return path.Join(s.path, "crap")
 }
 
-func blobPath() string {
-	return path.Join(crapPath(), "blobs")
+func (s Store) indexPath() string {
+	return path.Join(s.crapPath(), "index")
 }
 
-func tempPath() string {
-	return path.Join(crapPath(), "tmp")
+func (s Store) blobPath() string {
+	return path.Join(s.crapPath(), "blobs")
+}
+
+func (s Store) tempPath() string {
+	return path.Join(s.crapPath(), "tmp")
 }
 
 func cleanDir(name string) error {
