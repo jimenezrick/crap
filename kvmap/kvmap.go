@@ -48,26 +48,33 @@ func LoadJSONFile(name string) (*KVMap, error) {
 	return kv, nil
 }
 
-func (kv KVMap) errMsg(msg string) error {
+func (kv *KVMap) Merge(other KVMap) {
+	for key, value := range other.data {
+		kv.data[key] = value
+	}
+	kv.filename = other.filename
+}
+
+func (kv *KVMap) errMsg(msg string) error {
 	if kv.filename != "" {
 		msg += fmt.Sprint(" in file ", kv.filename)
 	}
 	return errors.New("kvmap: " + msg)
 }
 
-func (kv KVMap) errBadKey(key string) error {
+func (kv *KVMap) errBadKey(key string) error {
 	return kv.errMsg(fmt.Sprint("key ", key, " nonexistent"))
 }
 
-func (kv KVMap) errBadType(key, typ string) error {
+func (kv *KVMap) errBadType(key, typ string) error {
 	return kv.errMsg(fmt.Sprint("non ", typ, " value with key ", key))
 }
 
-func (kv KVMap) Set(key string, value interface{}) {
+func (kv *KVMap) Set(key string, value interface{}) {
 	kv.data[key] = value
 }
 
-func (kv KVMap) get(key string) (interface{}, error) {
+func (kv *KVMap) get(key string) (interface{}, error) {
 	value, ok := kv.data[key]
 	if !ok {
 		return nil, kv.errBadKey(key)
@@ -75,7 +82,7 @@ func (kv KVMap) get(key string) (interface{}, error) {
 	return value, nil
 }
 
-func (kv KVMap) GetBool(key string) (bool, error) {
+func (kv *KVMap) GetBool(key string) (bool, error) {
 	v, err := kv.get(key)
 	if err != nil {
 		return false, err
@@ -89,7 +96,7 @@ func (kv KVMap) GetBool(key string) (bool, error) {
 	return val, nil
 }
 
-func (kv KVMap) GetInt(key string) (int, error) {
+func (kv *KVMap) GetInt(key string) (int, error) {
 	v, err := kv.get(key)
 	if err != nil {
 		return 0, err
@@ -103,7 +110,7 @@ func (kv KVMap) GetInt(key string) (int, error) {
 	return val, nil
 }
 
-func (kv KVMap) GetString(key string) (string, error) {
+func (kv *KVMap) GetString(key string) (string, error) {
 	v, err := kv.get(key)
 	if err != nil {
 		return "", err
