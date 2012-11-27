@@ -1,14 +1,14 @@
 package kvmap
 
 import (
-	"os"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 )
 
 type KVMap struct {
-	data map[string]interface{}
+	data     map[string]interface{}
 	filename string
 }
 
