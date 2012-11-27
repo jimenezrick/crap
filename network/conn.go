@@ -12,16 +12,6 @@ type conn struct {
 	io.ReadWriter
 }
 
-type request struct {
-	Req string "request"
-	Key string "key"
-}
-
-type result struct {
-	Res  string "result"
-	Info string "info"
-}
-
 func newConn(sock net.Conn) *conn {
 	return &conn{
 		sock,
@@ -49,7 +39,7 @@ func (c *conn) StoreBlob(name string) error {
 		return err
 	}
 
-	req := request{"store", name} // XXX
+	req := request("request", "store")
 	size := uint32(info.Size())   // XXX
 	if err = c.WriteJSONFrame(req); err != nil {
 		return err

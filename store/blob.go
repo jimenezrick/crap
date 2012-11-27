@@ -1,5 +1,7 @@
 package store
 
+// XXX: create(O_EXCLUSIVE) de file that is going to be renamed
+
 // XXX: Encrypt AES
 // XXX: Conn SSL
 // XXX: Retrieve(key string) *Blob
