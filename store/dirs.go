@@ -21,8 +21,14 @@ func New(config kvmap.KVMap) *Store {
 	if err != nil {
 		panic(err)
 	}
-	s := Store{path, os.FileMode(perm)}
 
+	s := Store{path, os.FileMode(perm)}
+	s.createDirs()
+
+	return &s
+}
+
+func (s Store) createDirs() {
 	if err := os.MkdirAll(s.indexPath(), s.perm); err != nil {
 		panic(err)
 	}
@@ -39,8 +45,6 @@ func New(config kvmap.KVMap) *Store {
 	if err := syncDir(s.crapPath()); err != nil {
 		panic(err)
 	}
-
-	return &s
 }
 
 func (s Store) crapPath() string {
