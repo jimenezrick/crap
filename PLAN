@@ -1,0 +1,17 @@
+* Append-log:
+	Write + sync entry: [CRC][Size][Payload][Size]["crap"]
+	Exponential backwards repair?
+
+* Blob index:
+	date -> {key, tags list}
+	Index in memory map from log located at crap/index/
+
+* Read:
+	http://www.igvita.com/2012/02/06/sstable-and-log-structured-storage-leveldb/
+	http://research.google.com/archive/bigtable.html
+
+	http://wiki.apache.org/cassandra/MemtableSSTable
+	http://wiki.apache.org/cassandra/ArchitectureSSTable
+
+	http://doc.cat-v.org/plan_9/4th_edition/papers/fossil/
+	http://doc.cat-v.org/plan_9/4th_edition/papers/venti/

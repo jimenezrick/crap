@@ -3,7 +3,7 @@ package network
 // XXX: Add more logging everywhere
 
 import (
-	"log"
+	"log" // XXX
 	"net"
 )
 
