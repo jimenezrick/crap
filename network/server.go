@@ -3,8 +3,8 @@ package network
 // XXX: Add more logging everywhere
 
 import (
-	"net"
 	"log"
+	"net"
 )
 
 import (
@@ -13,8 +13,8 @@ import (
 )
 
 type Network struct {
-	address string
-	store   *store.Store
+	address  string
+	store    *store.Store
 	listener net.Listener
 }
 
@@ -55,17 +55,6 @@ func (n *Network) Stop() error {
 	return n.listener.Close()
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // XXX XXX XXX
 type request struct {
 	val string `json:"request"`
@@ -75,9 +64,6 @@ type result struct {
 	val  string `json:"result"`
 	info string `json:",omitempty"`
 }
-
-
-
 
 func (n *Network) handleConnection(conn *Conn) {
 	defer conn.Close()
@@ -113,11 +99,6 @@ func (n *Network) handleConnection(conn *Conn) {
 		return
 	}
 }
-
-
-
-
-
 
 func (n *Network) handleStore(conn *Conn, req request) (string, error) {
 	blob, err := n.store.NewBlob()

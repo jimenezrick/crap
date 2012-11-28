@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"io"
 	"bufio"
+	"fmt"
+	"io"
+	"os"
 	"time"
 )
 
@@ -85,11 +85,6 @@ func client() {
 	}
 }
 
-
-
-
-
-
 // XXX XXX XXX
 func takeBlob(name string) (io.Reader, int64, error) {
 	file, err := os.Open(name)
@@ -104,4 +99,5 @@ func takeBlob(name string) (io.Reader, int64, error) {
 
 	return bufio.NewReader(file), info.Size(), nil
 }
+
 // XXX XXX XXX
