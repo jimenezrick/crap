@@ -48,6 +48,10 @@ func LoadJSONFile(name string) (*KVMap, error) {
 	return kv, nil
 }
 
+func (kv *KVMap) MarshalJSON() ([]byte, error) {
+	return json.Marshal(kv.data)
+}
+
 func (kv *KVMap) Merge(other *KVMap) {
 	for key, value := range other.data {
 		kv.data[key] = value

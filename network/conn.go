@@ -50,7 +50,7 @@ func (c *Conn) StoreBlob(blob io.Reader, size uint32) error {
 	if err := c.ReadJSONFrame(&res); err != nil {
 		return err
 	}
-	println("RESULT: ", res.val, res.info)
+	println("RESULT: ", res.Val, res.Info)
 	// XXX XXX XXX
 
 	return nil

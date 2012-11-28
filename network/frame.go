@@ -7,6 +7,8 @@ import (
 	"io"
 )
 
+import "crap/log"
+
 const maxJSONSize = 4096
 
 var errSize error = errors.New("network: frame too big")
@@ -56,12 +58,13 @@ func (c *Conn) writeFrameBody(body []byte) error {
 }
 
 func (c *Conn) ReadJSONFrame(obj interface{}) error {
-	buf, err := c.readFrameBody(maxJSONSize)
+	body, err := c.readFrameBody(maxJSONSize)
 	if err != nil {
 		return err
 	}
+	log.Debug.Printf("JSON frame received: %s", body)
 
-	if err = json.Unmarshal(buf, obj); err != nil {
+	if err = json.Unmarshal(body, obj); err != nil {
 		return err
 	}
 
@@ -73,6 +76,7 @@ func (c *Conn) WriteJSONFrame(obj interface{}) error {
 	if err != nil {
 		return err
 	}
+	log.Debug.Printf("JSON frame sent: %s", body)
 
 	err = c.writeFrameBody(body)
 	if err != nil {

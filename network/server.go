@@ -57,12 +57,12 @@ func (n *Network) Stop() error {
 
 // XXX XXX XXX
 type request struct {
-	val string `json:"request"`
+	Val string `json:"request"`
 }
 
 type result struct {
-	val  string `json:"result"`
-	info string `json:",omitempty"`
+	Val  string `json:"result"`
+	Info string `json:",omitempty"`
 }
 
 func (n *Network) handleConnection(conn *Conn) {
@@ -75,9 +75,9 @@ func (n *Network) handleConnection(conn *Conn) {
 	}
 	log.Print("Request:", req)
 
-	switch req.val {
+	switch req.Val {
 	case "store":
-		key, err := n.handleStore(conn, req)
+		key, err := n.handleStore(conn)
 		if err != nil {
 			log.Print("Error:", err)
 		}
@@ -100,7 +100,7 @@ func (n *Network) handleConnection(conn *Conn) {
 	}
 }
 
-func (n *Network) handleStore(conn *Conn, req request) (string, error) {
+func (n *Network) handleStore(conn *Conn) (string, error) {
 	blob, err := n.store.NewBlob()
 	if err != nil {
 		return "", err

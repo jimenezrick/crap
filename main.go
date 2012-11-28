@@ -12,6 +12,7 @@ import (
 	"crap/kvmap"
 	"crap/network"
 	"crap/store"
+	"crap/log"
 )
 
 func main() {
@@ -30,6 +31,8 @@ func usage() {
 
 func defaultConfig() *kvmap.KVMap {
 	config := kvmap.New()
+	config.Set("log.debug", true)
+	config.Set("log.syslog", true)
 	config.Set("store.path", "/tmp")
 	config.Set("store.permissions", 0700)
 	config.Set("network.listen_address", ":9000")
@@ -47,6 +50,7 @@ func loadConfigFile(name string) *kvmap.KVMap {
 
 func server() {
 	config := loadConfigFile("crap.conf")
+	log.Init(config)
 
 	store, err := store.New(config)
 	if err != nil {
@@ -66,6 +70,9 @@ func server() {
 }
 
 func client() {
+	config := loadConfigFile("crap.conf")
+	log.Init(config)
+
 	conn, err := network.Connect(os.Args[1])
 	if err != nil {
 		panic(err)
