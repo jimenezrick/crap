@@ -42,6 +42,10 @@ func (s Store) tempPath() string {
 	return path.Join(s.crapPath(), "tmp")
 }
 
+func (s Store) lockPath() string {
+	return path.Join(s.crapPath(), "lock")
+}
+
 func cleanDir(name string) error {
 	dir, err := os.Open(name)
 	if err != nil {

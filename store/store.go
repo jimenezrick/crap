@@ -26,3 +26,20 @@ func New(config *kvmap.KVMap) (*Store, error) {
 
 	return &s, nil
 }
+
+func (s Store) Lock() error {
+	file, err := os.OpenFile(
+		s.lockPath(),
+		os.O_WRONLY | os.O_CREATE | os.O_EXCL,
+		s.perm)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return nil
+}
+
+func (s Store) Unlock() error {
+	return os.Remove(s.lockPath())
+}
