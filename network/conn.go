@@ -6,8 +6,6 @@ import (
 	"net"
 )
 
-import "crap/kvmap"
-
 type Conn struct {
 	sock net.Conn
 	io.ReadWriter
@@ -31,27 +29,29 @@ func Connect(addr string) (*Conn, error) {
 }
 
 func (c *Conn) StoreBlob(blob io.Reader, size uint32) error {
-	req := kvmap.NewWith("request", "store")
+	req := request{"store"}
 	if err := c.WriteJSONFrame(req); err != nil {
 		return err
 	}
 
+	// XXX: Crear una abstraccion que envuelve un writer y calcula su hash
 	if err := c.WriteBlobFrameFrom(blob, size); err != nil {
 		return err
 	}
 
-	req = kvmap.NewWith("key", "bogus") // TODO
-	if err := c.WriteJSONFrame(req); err != nil {
+	key := keyRequest{"bogus"} // XXX
+	if err := c.WriteJSONFrame(key); err != nil {
 		return err
 	}
 
-	// XXX XXX XX
 	var res result
 	if err := c.ReadJSONFrame(&res); err != nil {
 		return err
 	}
-	println("RESULT: ", res.Val, res.Info)
-	// XXX XXX XXX
+
+	if res.Val != "ok" {
+		return resultError(res)
+	}
 
 	return nil
 }

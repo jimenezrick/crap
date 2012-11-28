@@ -56,15 +56,6 @@ func (n *Network) Stop() error {
 }
 
 // XXX XXX XXX
-type request struct {
-	Val string `json:"request"`
-}
-
-type result struct {
-	Val  string `json:"result"`
-	Info string `json:",omitempty"`
-}
-
 func (n *Network) handleConnection(conn *Conn) {
 	defer conn.Close()
 

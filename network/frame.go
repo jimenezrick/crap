@@ -76,12 +76,12 @@ func (c *Conn) WriteJSONFrame(obj interface{}) error {
 	if err != nil {
 		return err
 	}
-	log.Debug.Printf("JSON frame sent: %s", body)
 
 	err = c.writeFrameBody(body)
 	if err != nil {
 		return err
 	}
+	log.Debug.Printf("JSON frame sent: %s", body)
 
 	return c.Flush()
 }
@@ -98,6 +98,7 @@ func (c *Conn) ReadBlobFrameTo(to io.Writer) error {
 	} else if err != nil {
 		return err
 	}
+	log.Debug.Printf("%d bytes blob frame received", size)
 
 	return nil
 }
@@ -112,6 +113,7 @@ func (c *Conn) WriteBlobFrameFrom(from io.Reader, size uint32) error {
 	if err != nil {
 		return err
 	}
+	log.Debug.Printf("%d bytes blob frame sent", size)
 
 	return c.Flush()
 }
