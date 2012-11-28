@@ -48,7 +48,7 @@ func LoadJSONFile(name string) (*KVMap, error) {
 	return kv, nil
 }
 
-func (kv *KVMap) Merge(other KVMap) {
+func (kv *KVMap) Merge(other *KVMap) {
 	for key, value := range other.data {
 		kv.data[key] = value
 	}

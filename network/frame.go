@@ -7,28 +7,28 @@ import (
 	"io"
 )
 
-import "crap/config"
+const maxJSONSize = 4096
 
-var errJSONSize error = errors.New("crap/net: JSON frame too big")
-var errMoreData error = errors.New("crap/net: expecting more frame data")
+var errSize error = errors.New("network: frame too big")
+var errMoreData error = errors.New("network: expecting more frame data")
 
-func (c conn) readFrameSize() (size uint32, err error) {
+func (c *Conn) readFrameSize() (size uint32, err error) {
 	err = binary.Read(c, binary.BigEndian, &size)
 	return
 }
 
-func (c conn) writeFrameSize(size uint32) error {
+func (c *Conn) writeFrameSize(size uint32) error {
 	return binary.Write(c, binary.BigEndian, size)
 }
 
-func (c conn) readFrameBody() ([]byte, error) {
+func (c *Conn) readFrameBody(max uint32) ([]byte, error) {
 	size, err := c.readFrameSize()
 	if err != nil {
 		return nil, err
 	}
 
-	if size > uint32(config.GetInt("network.max_json_frame_size")) {
-		return nil, errJSONSize
+	if size > max {
+		return nil, errSize
 	}
 
 	buf := make([]byte, size)
@@ -42,7 +42,7 @@ func (c conn) readFrameBody() ([]byte, error) {
 	return buf, nil
 }
 
-func (c conn) writeFrameBody(body []byte) error {
+func (c *Conn) writeFrameBody(body []byte) error {
 	if err := c.writeFrameSize(uint32(len(body))); err != nil {
 		return err
 	}
@@ -55,8 +55,8 @@ func (c conn) writeFrameBody(body []byte) error {
 	return nil
 }
 
-func (c conn) ReadJSONFrame(obj interface{}) error {
-	buf, err := c.readFrameBody()
+func (c *Conn) ReadJSONFrame(obj interface{}) error {
+	buf, err := c.readFrameBody(maxJSONSize)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (c conn) ReadJSONFrame(obj interface{}) error {
 	return nil
 }
 
-func (c conn) WriteJSONFrame(obj interface{}) error {
+func (c *Conn) WriteJSONFrame(obj interface{}) error {
 	body, err := json.Marshal(obj)
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (c conn) WriteJSONFrame(obj interface{}) error {
 	return c.Flush()
 }
 
-func (c conn) ReadBlobFrameTo(to io.Writer) error {
+func (c *Conn) ReadBlobFrameTo(to io.Writer) error {
 	size, err := c.readFrameSize()
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (c conn) ReadBlobFrameTo(to io.Writer) error {
 	return nil
 }
 
-func (c conn) WriteBlobFrameFrom(from io.Reader, size uint32) error {
+func (c *Conn) WriteBlobFrameFrom(from io.Reader, size uint32) error {
 	err := c.writeFrameSize(size)
 	if err != nil {
 		return err

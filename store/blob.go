@@ -38,12 +38,12 @@ func (s Store) NewBlob() (*Blob, error) {
 	return &b, nil
 }
 
-func (b Blob) Write(buf []byte) (int, error) {
+func (b *Blob) Write(buf []byte) (int, error) {
 	b.hash.Write(buf)
 	return b.writer.Write(buf)
 }
 
-func (b Blob) Store() (string, error) {
+func (b *Blob) Store() (string, error) {
 	defer b.file.Close()
 	b.writer.Flush()
 
@@ -68,7 +68,7 @@ func (b Blob) Store() (string, error) {
 	return b.Key(), nil
 }
 
-func (b Blob) Abort() error {
+func (b *Blob) Abort() error {
 	if err := b.file.Close(); err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (b Blob) Abort() error {
 	return nil
 }
 
-func (b Blob) Size() (int64, error) {
+func (b *Blob) Size() (int64, error) {
 	info, err := b.file.Stat()
 	if err != nil {
 		return 0, err
@@ -88,11 +88,11 @@ func (b Blob) Size() (int64, error) {
 	return info.Size(), nil
 }
 
-func (b Blob) Key() string {
+func (b *Blob) Key() string {
 	return fmt.Sprintf("%x", b.hash.Sum(nil))
 }
 
-func (b Blob) Path() string {
+func (b *Blob) Path() string {
 	hash := b.Key()
 	return path.Join(b.store.blobPath(), hash[:2], hash[2:])
 }

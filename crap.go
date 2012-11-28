@@ -1,9 +1,11 @@
 package main
 
 import (
-	"os"
-	"time"
 	"fmt"
+	"os"
+	"io"
+	"bufio"
+	"time"
 )
 
 import (
@@ -26,54 +28,38 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "Usage:", os.Args[0], "[<host> <file>]")
 }
 
-func defaultConfig() *KVMap {
+func defaultConfig() *kvmap.KVMap {
 	config := kvmap.New()
 	config.Set("store.path", "/tmp")
 	config.Set("store.permissions", 0700)
 	config.Set("network.listen_address", ":9000")
-	config.Set("network.max_json_frame_size", 4096)
+	return config
 }
 
-func loadConfigFile(name string) *KVMap {
+func loadConfigFile(name string) *kvmap.KVMap {
 	config := defaultConfig()
 	configFile, err := kvmap.LoadJSONFile(name)
 	if err == nil {
 		config.Merge(configFile)
 	}
-
 	return config
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 func server() {
-	store, err := store.New()
+	config := loadConfigFile("crap.conf")
+
+	store, err := store.New(config)
 	if err != nil {
 		panic(err)
 	}
 
-	serv := network.NewServer()
-	if err := serv.Start(); err != nil {
+	network := network.New(config, store)
+	if err := network.Start(); err != nil {
 		panic(err)
 	}
 
 	time.Sleep(100 * time.Second)
-	if err := serv.Stop(); err != nil {
+	if err := network.Stop(); err != nil {
 		panic(err)
 	}
 	time.Sleep(3 * time.Second)
@@ -84,10 +70,38 @@ func client() {
 	if err != nil {
 		panic(err)
 	}
-	if err = conn.StoreBlob(os.Args[2]); err != nil {
+
+	blob, size, err := takeBlob(os.Args[2])
+	if err != nil {
 		panic(err)
 	}
+
+	if err = conn.StoreBlob(blob, uint32(size)); err != nil {
+		panic(err)
+	}
+
 	if err = conn.Close(); err != nil {
 		panic(err)
 	}
 }
+
+
+
+
+
+
+// XXX XXX XXX
+func takeBlob(name string) (io.Reader, int64, error) {
+	file, err := os.Open(name)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	info, err := file.Stat()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return bufio.NewReader(file), info.Size(), nil
+}
+// XXX XXX XXX

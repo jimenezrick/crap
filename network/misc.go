@@ -6,11 +6,11 @@ import (
 )
 
 // XXX: See http://code.google.com/p/go/issues/detail?id=4373
-var ErrClosing = errors.New("use of closed network connection")
+var errClosing = errors.New("use of closed network connection")
 
-func IsErrClosing(err error) bool {
+func IsClosing(err error) bool {
 	if opErr, ok := err.(*net.OpError); ok {
-		return opErr.Err.Error() == ErrClosing.Error()
+		return opErr.Err.Error() == errClosing.Error()
 	}
 	return false
 }

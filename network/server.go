@@ -1,65 +1,97 @@
 package network
 
+// XXX: Add more logging everywhere
+
 import (
-	"log"
 	"net"
+	"log"
 )
 
 import (
-	"crap/config"
+	"crap/kvmap"
 	"crap/store"
 )
 
-type server struct {
-	net.Listener
+type Network struct {
+	address string
+	store   *store.Store
+	listener net.Listener
 }
 
-func NewServer() *server {
-	return new(server)
+func New(config *kvmap.KVMap, store *store.Store) *Network {
+	addr, err := config.GetString("network.listen_address")
+	if err != nil {
+		panic(err)
+	}
+
+	return &Network{addr, store, nil}
 }
 
-func (s *server) Start() error {
-	lis, err := net.Listen("tcp", config.GetString("network.listen_address"))
+func (n *Network) Start() error {
+	lis, err := net.Listen("tcp", n.address)
 	if err != nil {
 		return err
 	}
+	n.listener = lis
 
 	go func() {
 		for {
-			sock, err := lis.Accept()
-			if IsErrClosing(err) {
+			sock, err := n.listener.Accept()
+			if IsClosing(err) {
 				return
 			} else if err != nil {
 				panic(err)
 			}
 
 			conn := newConn(sock)
-			go conn.handleConnection()
+			go n.handleConnection(conn)
 		}
 	}()
 
-	s.Listener = lis
 	return nil
 }
 
-func (s *server) Stop() error {
-	return s.Close()
+func (n *Network) Stop() error {
+	return n.listener.Close()
 }
 
+
+
+
+
+
+
+
+
+
+
+
 // XXX XXX XXX
-func (c conn) handleConnection() {
-	defer c.Close()
+type request struct {
+	val string `json:"request"`
+}
+
+type result struct {
+	val  string `json:"result"`
+	info string `json:",omitempty"`
+}
+
+
+
+
+func (n *Network) handleConnection(conn *Conn) {
+	defer conn.Close()
 
 	var req request
-	if err := c.ReadJSONFrame(&req); err != nil {
+	if err := conn.ReadJSONFrame(&req); err != nil {
 		log.Print("Error:", err)
 		return
 	}
 	log.Print("Request:", req)
 
-	switch req.Req {
+	switch req.val {
 	case "store":
-		key, err := c.handleStore(req)
+		key, err := n.handleStore(conn, req)
 		if err != nil {
 			log.Print("Error:", err)
 		}
@@ -68,16 +100,32 @@ func (c conn) handleConnection() {
 		log.Print("Error: not implemented")
 		return
 	}
+
+	if err := conn.ReadJSONFrame(&req); err != nil {
+		log.Print("Error:", err)
+		return
+	}
+	log.Print("Request:", req)
+
+	res := result{"ok", "everything went smooth"}
+	if err := conn.WriteJSONFrame(res); err != nil {
+		log.Print("Error:", err)
+		return
+	}
 }
 
-func (c conn) handleStore(req request) (string, error) {
-	blob, err := store.NewBlob()
+
+
+
+
+
+func (n *Network) handleStore(conn *Conn, req request) (string, error) {
+	blob, err := n.store.NewBlob()
 	if err != nil {
 		return "", err
 	}
 
-	err = c.ReadBlobFrameTo(blob)
-	if err != nil {
+	if err = conn.ReadBlobFrameTo(blob); err != nil {
 		blob.Abort()
 		return "", err
 	}

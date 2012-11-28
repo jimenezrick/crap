@@ -4,22 +4,25 @@ import (
 	"bufio"
 	"io"
 	"net"
-	"os"
 )
 
-type conn struct {
+import "crap/kvmap"
+
+type Conn struct {
 	sock net.Conn
 	io.ReadWriter
 }
 
-func newConn(sock net.Conn) *conn {
-	return &conn{
+func newConn(sock net.Conn) *Conn {
+	return &Conn{
 		sock,
-		bufio.NewReadWriter(bufio.NewReader(sock), bufio.NewWriter(sock)),
+		bufio.NewReadWriter(
+			bufio.NewReader(sock),
+			bufio.NewWriter(sock)),
 	}
 }
 
-func Connect(addr string) (*conn, error) {
+func Connect(addr string) (*Conn, error) {
 	sock, err := net.Dial("tcp", addr)
 	if err != nil {
 		return nil, err
@@ -27,34 +30,36 @@ func Connect(addr string) (*conn, error) {
 	return newConn(sock), nil
 }
 
-func (c *conn) StoreBlob(name string) error {
-	file, err := os.Open(name)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	info, err := file.Stat()
-	if err != nil {
+func (c *Conn) StoreBlob(blob io.Reader, size uint32) error {
+	req := kvmap.NewWith("request", "store")
+	if err := c.WriteJSONFrame(req); err != nil {
 		return err
 	}
 
-	req := request("request", "store")
-	size := uint32(info.Size())   // XXX
-	if err = c.WriteJSONFrame(req); err != nil {
+	if err := c.WriteBlobFrameFrom(blob, size); err != nil {
 		return err
 	}
-	if err = c.WriteBlobFrameFrom(bufio.NewReader(file), size); err != nil {
+
+	req = kvmap.NewWith("key", "bogus") // TODO
+	if err := c.WriteJSONFrame(req); err != nil {
 		return err
 	}
+
+	// XXX XXX XX
+	var res result
+	if err := c.ReadJSONFrame(&res); err != nil {
+		return err
+	}
+	println("RESULT: ", res.val, res.info)
+	// XXX XXX XXX
 
 	return nil
 }
 
-func (c *conn) Flush() error {
+func (c *Conn) Flush() error {
 	return c.ReadWriter.(*bufio.ReadWriter).Flush()
 }
 
-func (c *conn) Close() error {
+func (c *Conn) Close() error {
 	return c.sock.Close()
 }

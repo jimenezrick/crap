@@ -9,7 +9,7 @@ type Store struct {
 	perm os.FileMode
 }
 
-func New(config kvmap.KVMap) (*Store, error) {
+func New(config *kvmap.KVMap) (*Store, error) {
 	path, err := config.GetString("store.path")
 	if err != nil {
 		panic(err)
