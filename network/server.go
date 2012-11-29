@@ -1,6 +1,8 @@
 package network
 
 // XXX: Add more logging everywhere
+// XXX: Recover from panic halding peers
+// XXX: Show message when new peer connects
 
 import (
 	"log" // XXX
@@ -61,16 +63,16 @@ func (n *Network) handleConnection(conn *Conn) {
 
 	var req request
 	if err := conn.ReadJSONFrame(&req); err != nil {
-		log.Print("Error:", err)
+		log.Print("Error: ", err)
 		return
 	}
-	log.Print("Request:", req)
+	log.Print("Request: ", req)
 
 	switch req.Val {
 	case "store":
 		key, err := n.handleStore(conn)
 		if err != nil {
-			log.Print("Error:", err)
+			log.Print("Error: ", err)
 		}
 		log.Print("Key:", key)
 	default:
@@ -79,14 +81,14 @@ func (n *Network) handleConnection(conn *Conn) {
 	}
 
 	if err := conn.ReadJSONFrame(&req); err != nil {
-		log.Print("Error:", err)
+		log.Print("Error: ", err)
 		return
 	}
-	log.Print("Request:", req)
+	log.Print("Request: ", req)
 
 	res := result{"ok", "everything went smooth"}
 	if err := conn.WriteJSONFrame(res); err != nil {
-		log.Print("Error:", err)
+		log.Print("Error: ", err)
 		return
 	}
 }
