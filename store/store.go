@@ -6,7 +6,8 @@ import "crap/kvmap"
 
 type Store struct {
 	path string
-	perm os.FileMode
+	dirPerm os.FileMode
+	filePerm os.FileMode
 }
 
 func New(config *kvmap.KVMap) (*Store, error) {
@@ -14,11 +15,15 @@ func New(config *kvmap.KVMap) (*Store, error) {
 	if err != nil {
 		panic(err)
 	}
-	perm, err := config.GetInt("store.permissions")
+	dirPerm, err := config.GetInt("store.dir_permissions")
 	if err != nil {
 		panic(err)
 	}
-	s := Store{path, os.FileMode(perm)}
+	filePerm, err := config.GetInt("store.file_permissions")
+	if err != nil {
+		panic(err)
+	}
+	s := Store{path, os.FileMode(dirPerm), os.FileMode(filePerm)}
 
 	if err := s.initStore(); err != nil {
 		return nil, err
@@ -31,7 +36,7 @@ func (s Store) Lock() error {
 	file, err := os.OpenFile(
 		s.lockPath(),
 		os.O_WRONLY | os.O_CREATE | os.O_EXCL,
-		s.perm)
+		s.filePerm)
 	if err != nil {
 		return err
 	}

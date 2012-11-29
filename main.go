@@ -9,7 +9,6 @@ import (
 )
 
 import (
-	"crap/kvmap"
 	"crap/network"
 	"crap/store"
 	"crap/log"
@@ -29,27 +28,8 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "Usage:", os.Args[0], "[<host> <file>]")
 }
 
-func defaultConfig() *kvmap.KVMap {
-	config := kvmap.New()
-	config.Set("log.debug", true)
-	config.Set("log.syslog", true)
-	config.Set("store.path", "/tmp")
-	config.Set("store.permissions", 0700)
-	config.Set("network.listen_address", ":9000")
-	return config
-}
-
-func loadConfigFile(name string) *kvmap.KVMap {
-	config := defaultConfig()
-	configFile, err := kvmap.LoadJSONFile(name)
-	if err == nil {
-		config.Merge(configFile)
-	}
-	return config
-}
-
 func server() {
-	config := loadConfigFile("crap.conf")
+	config := loadConfig()
 	log.Init(config)
 
 	store, err := store.New(config)
@@ -75,7 +55,7 @@ func server() {
 }
 
 func client() {
-	config := loadConfigFile("crap.conf")
+	config := loadConfig()
 	log.Init(config)
 
 	conn, err := network.Connect(os.Args[1])
@@ -111,5 +91,4 @@ func takeBlob(name string) (io.Reader, int64, error) {
 
 	return bufio.NewReader(file), info.Size(), nil
 }
-
 // XXX XXX XXX

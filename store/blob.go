@@ -47,6 +47,9 @@ func (b *Blob) Store() (string, error) {
 	defer b.file.Close()
 	b.writer.Flush()
 
+	if err := b.file.Chmod(b.store.filePerm); err != nil {
+		return "", err
+	}
 	if err := b.file.Sync(); err != nil {
 		return "", err
 	}
@@ -54,7 +57,7 @@ func (b *Blob) Store() (string, error) {
 	src := b.file.Name()
 	dest := b.Path()
 
-	if err := os.MkdirAll(path.Dir(dest), b.store.perm); err != nil {
+	if err := os.MkdirAll(path.Dir(dest), b.store.dirPerm); err != nil {
 		return "", err
 	}
 	if err := os.Rename(src, dest); err != nil {

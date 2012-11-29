@@ -6,10 +6,10 @@ import (
 )
 
 func (s Store) initStore() error {
-	if err := os.MkdirAll(s.indexPath(), s.perm); err != nil {
+	if err := os.MkdirAll(s.indexPath(), s.dirPerm); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(s.blobPath(), s.perm); err != nil {
+	if err := os.MkdirAll(s.blobPath(), s.dirPerm); err != nil {
 		return err
 	}
 
@@ -20,7 +20,7 @@ func (s Store) initStore() error {
 			return err
 		}
 	}
-	if err := os.MkdirAll(s.tempPath(), s.perm); err != nil {
+	if err := os.MkdirAll(s.tempPath(), s.dirPerm); err != nil {
 		return err
 	}
 
