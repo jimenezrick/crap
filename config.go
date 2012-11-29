@@ -1,5 +1,10 @@
 package main
 
+import (
+	"os"
+	"fmt"
+)
+
 import "crap/kvmap"
 
 var configFiles []string = []string{"/etc/crap/conf.json", "conf.json"}
@@ -16,9 +21,12 @@ func defaultConfig() *kvmap.KVMap {
 }
 
 func mergeConfigFile(config *kvmap.KVMap, name string) {
-	configFile, err := kvmap.LoadJSONFile(name)
-	if err == nil {
+	if configFile, err := kvmap.LoadJSONFile(name); err == nil {
 		config.Merge(configFile)
+		fmt.Println("Config file", name, "loaded") // TODO: Check verbose flag
+	} else if !os.IsNotExist(err) {
+		fmt.Fprintln(os.Stderr, "Syntax error in config file", name + ":", err)
+		os.Exit(1)
 	}
 }
 
