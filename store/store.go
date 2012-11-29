@@ -15,11 +15,11 @@ func New(config *kvmap.KVMap) (*Store, error) {
 	if err != nil {
 		panic(err)
 	}
-	dirPerm, err := config.GetOctString("store.dir_permissions")
+	dirPerm, err := config.GetIntString("store.dir_permissions")
 	if err != nil {
 		panic(err)
 	}
-	filePerm, err := config.GetOctString("store.file_permissions")
+	filePerm, err := config.GetIntString("store.file_permissions")
 	if err != nil {
 		panic(err)
 	}
