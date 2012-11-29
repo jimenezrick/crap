@@ -20,7 +20,7 @@ func New(config *kvmap.KVMap) (*Store, error) {
 	}
 	s := Store{path, os.FileMode(perm)}
 
-	if err := s.createDirs(); err != nil {
+	if err := s.initStore(); err != nil {
 		return nil, err
 	}
 

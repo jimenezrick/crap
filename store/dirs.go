@@ -5,21 +5,26 @@ import (
 	"path"
 )
 
-func (s Store) createDirs() error {
+func (s Store) initStore() error {
 	if err := os.MkdirAll(s.indexPath(), s.perm); err != nil {
 		return err
 	}
 	if err := os.MkdirAll(s.blobPath(), s.perm); err != nil {
 		return err
 	}
+
+	if exist, err := fileExist(s.tempPath()); err != nil {
+		return err
+	} else if exist {
+		if err := os.RemoveAll(s.tempPath()); err != nil {
+			return err
+		}
+	}
 	if err := os.MkdirAll(s.tempPath(), s.perm); err != nil {
 		return err
 	}
 
-	if err := cleanDir(s.tempPath()); err != nil {
-		return err
-	}
-	if err := syncDir(s.crapPath()); err != nil {
+	if err := syncFile(s.crapPath()); err != nil {
 		return err
 	}
 
@@ -46,28 +51,7 @@ func (s Store) lockPath() string {
 	return path.Join(s.crapPath(), "lock")
 }
 
-func cleanDir(name string) error {
-	dir, err := os.Open(name)
-	if err != nil {
-		return err
-	}
-	defer dir.Close()
-
-	temps, err := dir.Readdirnames(0)
-	if err != nil {
-		return err
-	}
-
-	for _, t := range temps {
-		if err := os.Remove(path.Join(name, t)); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func syncDir(name string) error {
+func syncFile(name string) error {
 	dir, err := os.Open(name)
 	if err != nil {
 		return err
@@ -79,4 +63,13 @@ func syncDir(name string) error {
 	}
 
 	return nil
+}
+
+func fileExist(name string) (bool, error) {
+	if _, err := os.Stat(name); os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	return true, nil
 }

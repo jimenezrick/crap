@@ -57,6 +57,11 @@ func server() {
 		panic(err)
 	}
 
+	if err := store.Lock(); err != nil {
+		panic(err)
+	}
+	defer store.Unlock()
+
 	network := network.New(config, store)
 	if err := network.Start(); err != nil {
 		panic(err)

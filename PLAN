@@ -1,3 +1,5 @@
+* Pid file in /var/run
+
 * Append-log:
 	Write + sync entry: [CRC][Size][Payload][Size]["crap"]
 	Exponential backwards repair?
