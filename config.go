@@ -14,8 +14,8 @@ func defaultConfig() *kvmap.KVMap {
 	config.Set("log.debug", true)
 	config.Set("log.syslog", true)
 	config.Set("store.path", "/tmp")
-	config.Set("store.dir_permissions", 0700)
-	config.Set("store.file_permissions", 0600)
+	config.Set("store.dir_permissions", "0700")
+	config.Set("store.file_permissions", "0600")
 	config.Set("network.listen_address", ":9000")
 	return config
 }

@@ -106,12 +106,15 @@ func (kv *KVMap) GetInt(key string) (int, error) {
 		return 0, err
 	}
 
-	val, ok := v.(int)
-	if !ok {
+	switch v.(type) {
+	case int:
+	case float64:
+		return int(v.(float64)), nil
+	default:
 		return 0, kv.errBadType(key, "integer")
 	}
 
-	return val, nil
+	return v.(int), nil
 }
 
 func (kv *KVMap) GetString(key string) (string, error) {
@@ -123,6 +126,22 @@ func (kv *KVMap) GetString(key string) (string, error) {
 	val, ok := v.(string)
 	if !ok {
 		return "", kv.errBadType(key, "string")
+	}
+
+	return val, nil
+}
+
+func (kv *KVMap) GetOctString(key string) (int, error) {
+	s, err := kv.GetString(key)
+	if err != nil {
+		return 0, err
+	}
+
+	var val int
+
+	_, err = fmt.Sscan(s, &val)
+	if err != nil {
+		return 0, err
 	}
 
 	return val, nil
