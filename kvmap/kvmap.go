@@ -131,7 +131,7 @@ func (kv *KVMap) GetString(key string) (string, error) {
 	return val, nil
 }
 
-func (kv *KVMap) GetOctString(key string) (int, error) {
+func (kv *KVMap) GetIntString(key string) (int, error) {
 	s, err := kv.GetString(key)
 	if err != nil {
 		return 0, err
