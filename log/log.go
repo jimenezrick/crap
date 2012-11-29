@@ -23,7 +23,6 @@ func Init(config *kvmap.KVMap) {
 	}
 
 	Debug = log.New(ioutil.Discard, "", 0)
-
 	if sys {
 		Info = newSyslogger(syslog.LOG_INFO)
 		if debug {
