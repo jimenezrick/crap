@@ -7,21 +7,19 @@ package store
 // XXX: Retrieve(key string) *Blob
 
 import (
-	"bufio"
-	"crypto/sha1"
 	"fmt"
-	"hash"
 	"io/ioutil"
 	"os"
 	"path"
 	"runtime"
 )
 
+import "crap/hashed"
+
 type Blob struct {
 	store  Store
 	file   *os.File
-	writer *bufio.Writer
-	hash   hash.Hash
+	hashed.HashedWriter
 }
 
 func (s Store) NewBlob() (*Blob, error) {
@@ -30,7 +28,7 @@ func (s Store) NewBlob() (*Blob, error) {
 		return nil, err
 	}
 
-	b := Blob{s, file, bufio.NewWriter(file), sha1.New()}
+	b := Blob{s, file, hashed.NewSHA1FileWriter(file)}
 	runtime.SetFinalizer(&b, func(b *Blob) {
 		os.Remove(b.file.Name())
 	})
@@ -38,14 +36,9 @@ func (s Store) NewBlob() (*Blob, error) {
 	return &b, nil
 }
 
-func (b *Blob) Write(buf []byte) (int, error) {
-	b.hash.Write(buf)
-	return b.writer.Write(buf)
-}
-
 func (b *Blob) Store() (string, error) {
 	defer b.file.Close()
-	b.writer.Flush()
+	b.HashedWriter.(*hashed.SHA1FileWriter).Flush()
 
 	if err := b.file.Chmod(b.store.filePerm); err != nil {
 		return "", err
@@ -92,7 +85,7 @@ func (b *Blob) Size() (int64, error) {
 }
 
 func (b *Blob) Key() string {
-	return fmt.Sprintf("%x", b.hash.Sum(nil))
+	return fmt.Sprintf("%x", b.Sum(nil))
 }
 
 func (b *Blob) Path() string {
