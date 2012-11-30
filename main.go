@@ -65,10 +65,8 @@ func client() {
 	}
 	defer file.Close()
 
-	key, err := conn.StoreBlob(file)
+	_, err = conn.StoreBlob(file)
 	if err != nil {
 		panic(err)
 	}
-
-	println("Key:", key) // XXX
 }
