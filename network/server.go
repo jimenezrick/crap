@@ -74,19 +74,20 @@ func (n *Network) handleConnection(conn *Conn) {
 		if err != nil {
 			log.Print("Error: ", err)
 		}
-		log.Print("Key:", key)
+		log.Print("Blob key: ", key)
 	default:
 		log.Print("Error: not implemented")
 		return
 	}
 
-	if err := conn.ReadJSONFrame(&req); err != nil {
+	var key keyRequest
+	if err := conn.ReadJSONFrame(&key); err != nil {
 		log.Print("Error: ", err)
 		return
 	}
-	log.Print("Request: ", req)
+	log.Print("Key: ", key)
 
-	res := result{"ok", "everything went smooth"}
+	res := result{"ok", "everything went smoothly"}
 	if err := conn.WriteJSONFrame(res); err != nil {
 		log.Print("Error: ", err)
 		return
@@ -114,5 +115,4 @@ func (n *Network) handleStore(conn *Conn) (string, error) {
 
 	return key, nil
 }
-
 // XXX XXX XXX

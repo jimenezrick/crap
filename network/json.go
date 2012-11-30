@@ -19,5 +19,5 @@ func resultError(res result) error {
 	if res.Info != "" {
 		return errors.New("network: " + res.Info)
 	}
-	return errors.New("network: bad result")
+	return errors.New("network: erroneous result")
 }

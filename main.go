@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"time"
 )
@@ -46,12 +44,9 @@ func server() {
 	if err := network.Start(); err != nil {
 		panic(err)
 	}
+	defer network.Stop()
 
-	time.Sleep(100 * time.Second)
-	if err := network.Stop(); err != nil {
-		panic(err)
-	}
-	time.Sleep(3 * time.Second)
+	time.Sleep(60 * time.Second)
 }
 
 func client() {
@@ -62,33 +57,18 @@ func client() {
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close()
 
-	blob, size, err := takeBlob(os.Args[2])
+	file, err := os.Open(os.Args[2])
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	key, err := conn.StoreBlob(file)
 	if err != nil {
 		panic(err)
 	}
 
-	if err = conn.StoreBlob(blob, uint32(size)); err != nil {
-		panic(err)
-	}
-
-	if err = conn.Close(); err != nil {
-		panic(err)
-	}
+	println("Key:", key) // XXX
 }
-
-// XXX XXX XXX
-func takeBlob(name string) (io.Reader, int64, error) {
-	file, err := os.Open(name)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	info, err := file.Stat()
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return bufio.NewReader(file), info.Size(), nil
-}
-// XXX XXX XXX

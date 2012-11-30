@@ -1,20 +1,24 @@
 package store
 
-// XXX: create(O_EXCLUSIVE) the file that is going to be renamed, as a lock for the destination
+// XXX: create(O_EXCLUSIVE) the file that is going to be renamed, as a lock for the destination:
+//      Blob.Lock() -> err := BlobExist
+//      Empty file ^^^
 
 // XXX: Encrypt AES
 // XXX: Conn SSL
 // XXX: Retrieve(key string) *Blob
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"runtime"
 )
 
-import "crap/hashed"
+import (
+	"crap/hashed"
+	"crap/util"
+)
 
 type Blob struct {
 	store  Store
@@ -76,16 +80,8 @@ func (b *Blob) Abort() error {
 	return nil
 }
 
-func (b *Blob) Size() (int64, error) {
-	info, err := b.file.Stat()
-	if err != nil {
-		return 0, err
-	}
-	return info.Size(), nil
-}
-
 func (b *Blob) Key() string {
-	return fmt.Sprintf("%x", b.Sum(nil))
+	return util.HexHash(b)
 }
 
 func (b *Blob) Path() string {
