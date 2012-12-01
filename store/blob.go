@@ -52,7 +52,7 @@ func (b *Blob) Store() (string, error) {
 	}
 
 	src := b.file.Name()
-	dest := b.Path()
+	dest := b.path()
 
 	if err := os.MkdirAll(path.Dir(dest), b.store.dirPerm); err != nil {
 		return "", err
@@ -65,7 +65,7 @@ func (b *Blob) Store() (string, error) {
 	}
 
 	runtime.SetFinalizer(b, nil)
-	return b.Key(), nil
+	return b.key(), nil
 }
 
 func (b *Blob) Abort() error {
@@ -80,11 +80,11 @@ func (b *Blob) Abort() error {
 	return nil
 }
 
-func (b *Blob) Key() string {
+func (b *Blob) key() string {
 	return util.HexHash(b)
 }
 
-func (b *Blob) Path() string {
-	hash := b.Key()
+func (b *Blob) path() string {
+	hash := b.key()
 	return path.Join(b.store.blobPath(), hash[:2], hash[2:])
 }
