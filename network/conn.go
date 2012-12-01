@@ -2,20 +2,20 @@ package network
 
 import (
 	"bufio"
-	"os"
 	"io"
 	"net"
+	"os"
 )
 
 import (
-	"crap/store"
 	"crap/hashed"
+	"crap/store"
 	"crap/util"
 )
 
 type Conn struct {
 	store *store.Store
-	sock net.Conn
+	sock  net.Conn
 	io.ReadWriter
 }
 

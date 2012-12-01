@@ -3,14 +3,14 @@ package network
 // XXX: Recover from panic
 
 import (
-	"os"
 	"net"
+	"os"
 )
 
 import (
 	"crap/config"
-	"crap/store"
 	"crap/log"
+	"crap/store"
 	"crap/util"
 )
 
@@ -70,7 +70,9 @@ func (c *Conn) handleStore() error {
 
 	abort := true
 	defer func() {
-		if abort { blob.Abort() }
+		if abort {
+			blob.Abort()
+		}
 	}()
 
 	if err := c.ReadBlobFrameTo(blob); err != nil {

@@ -8,8 +8,8 @@ import (
 )
 
 type Store struct {
-	path string
-	dirPerm os.FileMode
+	path     string
+	dirPerm  os.FileMode
 	filePerm os.FileMode
 }
 

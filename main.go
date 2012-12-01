@@ -8,9 +8,9 @@ import (
 
 import (
 	"crap/config"
+	"crap/log"
 	"crap/network"
 	"crap/store"
-	"crap/log"
 )
 
 var configFiles []string = []string{"/etc/crap/config.json", "config.json"}

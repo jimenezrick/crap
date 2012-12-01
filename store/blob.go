@@ -17,8 +17,8 @@ import (
 )
 
 type Blob struct {
-	store  Store
-	file   *os.File
+	store Store
+	file  *os.File
 	hashed.HashedWriter
 }
 

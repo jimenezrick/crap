@@ -1,8 +1,8 @@
 package config
 
 import (
-	"os"
 	"fmt"
+	"os"
 )
 
 import "crap/kvmap"
@@ -25,7 +25,7 @@ func mergeConfigFile(config *KVMap, name string) {
 		config.Merge(kvmap)
 		fmt.Println("Config file", name, "loaded") // TODO: Check verbose flag
 	} else if !os.IsNotExist(err) {
-		fmt.Fprintln(os.Stderr, "Syntax error in config file", name + ":", err)
+		fmt.Fprintln(os.Stderr, "Syntax error in config file", name+":", err)
 		os.Exit(1)
 	}
 }

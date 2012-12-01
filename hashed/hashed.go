@@ -1,11 +1,11 @@
 package hashed
 
 import (
-	"os"
-	"io"
 	"bufio"
-	"hash"
 	"crypto/sha1"
+	"hash"
+	"io"
+	"os"
 )
 
 type HashedReader interface {

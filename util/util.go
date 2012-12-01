@@ -1,9 +1,9 @@
 package util
 
 import (
-	"os"
 	"fmt"
 	"hash"
+	"os"
 )
 
 func SyncFile(name string) error {
@@ -30,7 +30,7 @@ func FileExist(name string) (bool, error) {
 }
 
 func CreateLockFile(name string, perm os.FileMode) error {
-	file, err := os.OpenFile(name, os.O_WRONLY | os.O_CREATE | os.O_EXCL, perm)
+	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, perm)
 	if err != nil {
 		return err
 	}

@@ -1,10 +1,10 @@
 package log
 
 import (
-	"os"
 	"io/ioutil"
 	"log"
 	"log/syslog"
+	"os"
 )
 
 import "crap/config"
