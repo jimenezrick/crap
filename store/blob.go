@@ -70,14 +70,17 @@ func (b *Blob) Store() ([]byte, error) {
 }
 
 func (b *Blob) Abort() error {
-	if err := b.file.Close(); err != nil {
-		return err
+	err1 := b.file.Close()
+	err2 := os.Remove(b.file.Name())
+	runtime.SetFinalizer(b, nil)
+
+	if err1 != nil {
+		return err1
 	}
-	if err := os.Remove(b.file.Name()); err != nil {
-		return err
+	if err2 != nil {
+		return err2
 	}
 
-	runtime.SetFinalizer(b, nil)
 	return nil
 }
 
