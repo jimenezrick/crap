@@ -19,5 +19,5 @@ func responseError(res response) error {
 	if res.Info != "" {
 		return errors.New("network: " + res.Info)
 	}
-	return errors.New("network: erroneous response")
+	return errors.New("network: " + res.Val + " response received")
 }

@@ -33,21 +33,17 @@ func server() {
 	config := config.LoadConfig(configFiles)
 	log.Init(config)
 
-	store, err := store.New(config)
+	store, err := store.Open(config)
 	if err != nil {
 		panic(err)
 	}
+	defer store.Close()
 
-	if err := store.Lock(); err != nil {
+	listener, err := network.Listen(config, store)
+	if err != nil {
 		panic(err)
 	}
-	defer store.Unlock()
-
-	network := network.New(config, store)
-	if err := network.Start(); err != nil {
-		panic(err)
-	}
-	defer network.Stop()
+	defer listener.Close()
 
 	time.Sleep(60 * time.Second)
 }

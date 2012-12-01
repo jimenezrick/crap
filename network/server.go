@@ -1,138 +1,125 @@
 package network
 
-// XXX: Refactor this file <-- !!!
-
-// XXX: Add more logging everywhere
-// XXX: Recover from panic halding peers
-// XXX: Show message when new peer connects
+// XXX: Recover from panic
 
 import (
-	"log" // XXX
+	"os"
 	"net"
 )
 
 import (
 	"crap/config"
 	"crap/store"
+	"crap/log"
+	"crap/util"
 )
 
-type Network struct {
-	address  string
-	store    *store.Store
-	listener net.Listener
-}
-
-func New(config config.Config, store *store.Store) *Network {
-	addr := config.GetString("network.listen_address")
-	return &Network{addr, store, nil}
-}
-
-func (n *Network) Start() error {
-	lis, err := net.Listen("tcp", n.address)
+func Listen(config config.Config, store *store.Store) (net.Listener, error) {
+	lis, err := net.Listen("tcp", config.GetString("network.listen_address"))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	n.listener = lis
 
 	go func() {
 		for {
-			sock, err := n.listener.Accept()
+			sock, err := lis.Accept()
 			if IsClosing(err) {
 				return
 			} else if err != nil {
 				panic(err)
 			}
 
-			conn := newConn(sock)
-			go n.handleConnection(conn)
+			conn := newConn(store, sock)
+			go conn.handleConnection()
 		}
 	}()
 
-	return nil
+	return lis, nil
 }
 
-func (n *Network) Stop() error {
-	return n.listener.Close()
-}
-
-// XXX XXX XXX
-func (n *Network) handleConnection(conn *Conn) {
-	defer conn.Close()
+func (c *Conn) handleConnection() {
+	defer c.Close()
+	log.Info.Printf("Connection opened from %s", c.sock.RemoteAddr())
 
 	var req request
-	if err := conn.ReadJSONFrame(&req); err != nil {
-		log.Print("Error: ", err)
-		return
+	if err := c.ReadJSONFrame(&req); err != nil {
+		c.respondError(err)
+		panic(err)
 	}
-	log.Print("Request: ", req)
 
 	switch req.Val {
 	case "store":
-		_, err := n.handleStore(conn)
-		if err != nil {
-			log.Print("Error: ", err)
+		if err := c.handleStore(); os.IsExist(err) {
+			c.respondBlobExist()
+		} else if err != nil {
+			c.respondError(err)
+			panic(err)
 		}
 	default:
-		log.Print("Error: not implemented")
-		return
+		c.respondInvalidRequest()
+	}
+}
+
+func (c *Conn) handleStore() error {
+	log.Info.Printf("Store request from %s", c.sock.RemoteAddr())
+
+	blob, err := c.store.NewBlob()
+	if err != nil {
+		return err
+	}
+
+	abort := true
+	defer func() {
+		if abort { blob.Abort() }
+	}()
+
+	if err := c.ReadBlobFrameTo(blob); err != nil {
+		return err
 	}
 
 	var key keyRequest
-	if err := conn.ReadJSONFrame(&key); err != nil {
-		log.Print("Error: ", err)
-		return
+	if err := c.ReadJSONFrame(&key); err != nil {
+		return err
 	}
 
-	res := response{"ok", ""}
-	if err := conn.WriteJSONFrame(res); err != nil {
-		log.Print("Error: ", err)
-		return
+	blobKey := util.HexHash(blob)
+	if key.Val != blobKey {
+		c.respondIncorrectKey()
+		return nil
 	}
+
+	if _, err := blob.Store(); err != nil {
+		return err
+	}
+	log.Info.Printf("Blob %s stored by %s", blobKey, c.sock.RemoteAddr())
+
+	abort = false
+	c.respondOK()
+	return nil
 }
 
-func (n *Network) handleStore(conn *Conn) ([]byte, error) {
-	blob, err := n.store.NewBlob()
-	if err != nil {
-		return nil, err
-	}
-
-	if err = conn.ReadBlobFrameTo(blob); err != nil {
-		blob.Abort()
-		return nil, err
-	}
-
-	key, err := blob.Store()
-	if err != nil {
-		blob.Abort()
-		return nil, err
-	}
-
-	// XXX: Check req.Key with key
-
-	return key, nil
-}
-// XXX XXX XXX
-
-
-
-
-
-
-
-
-
-//
-// XXX: Meter dentro de una Conn la Network? Renombrar Network? (listener?)
-//
-
-
-
-func (n *Network) respondOK(conn *Conn) {
-	n.respond(conn, "ok", "")
+func (c *Conn) respondOK() {
+	c.respond("ok", "")
 }
 
-func (n *Network) respond(conn *Conn, res, info string) {
-	if err := conn.WriteJSONFrame(response{res, info}); err != nil {
+func (c *Conn) respondBlobExist() {
+	c.respond("blob_exist", "")
+}
+
+func (c *Conn) respondIncorrectKey() {
+	c.respond("incorrect_key", "")
+}
+
+func (c *Conn) respondInvalidRequest() {
+	c.respond("invalid_request", "")
+}
+
+func (c *Conn) respondError(err error) {
+	c.respond("error", err.Error())
+}
+
+func (c *Conn) respond(res, info string) {
+	if err := c.WriteJSONFrame(response{res, info}); err != nil {
 		panic(err)
 	}
 }

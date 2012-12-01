@@ -8,17 +8,20 @@ import (
 )
 
 import (
+	"crap/store"
 	"crap/hashed"
 	"crap/util"
 )
 
 type Conn struct {
+	store *store.Store
 	sock net.Conn
 	io.ReadWriter
 }
 
-func newConn(sock net.Conn) *Conn {
+func newConn(store *store.Store, sock net.Conn) *Conn {
 	return &Conn{
+		store,
 		sock,
 		bufio.NewReadWriter(
 			bufio.NewReader(sock),
@@ -31,7 +34,7 @@ func Connect(addr string) (*Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newConn(sock), nil
+	return newConn(nil, sock), nil
 }
 
 func (c *Conn) StoreBlob(file *os.File) (string, error) {

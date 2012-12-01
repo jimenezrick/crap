@@ -54,9 +54,8 @@ func (b *Blob) Store() ([]byte, error) {
 		return nil, err
 	}
 
-	// XXX: Return something like os.PathError
 	if err := b.lock(); err != nil {
-		return nil, err
+		return b.Sum(nil), err
 	}
 
 	if err := os.Rename(src, dest); err != nil {
