@@ -10,7 +10,7 @@ import (
 )
 
 import (
-	"crap/kvmap"
+	"crap/config"
 	"crap/store"
 )
 
@@ -20,12 +20,8 @@ type Network struct {
 	listener net.Listener
 }
 
-func New(config *kvmap.KVMap, store *store.Store) *Network {
-	addr, err := config.GetString("network.listen_address")
-	if err != nil {
-		panic(err)
-	}
-
+func New(config config.Config, store *store.Store) *Network {
+	addr := config.GetString("network.listen_address")
 	return &Network{addr, store, nil}
 }
 

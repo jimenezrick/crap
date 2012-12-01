@@ -5,6 +5,8 @@ import (
 	"path"
 )
 
+import "crap/util"
+
 func (s Store) initStore() error {
 	if err := os.MkdirAll(s.indexPath(), s.dirPerm); err != nil {
 		return err
@@ -13,7 +15,7 @@ func (s Store) initStore() error {
 		return err
 	}
 
-	if exist, err := fileExist(s.tempPath()); err != nil {
+	if exist, err := util.FileExist(s.tempPath()); err != nil {
 		return err
 	} else if exist {
 		if err := os.RemoveAll(s.tempPath()); err != nil {
@@ -24,7 +26,7 @@ func (s Store) initStore() error {
 		return err
 	}
 
-	if err := syncFile(s.crapPath()); err != nil {
+	if err := util.SyncFile(s.crapPath()); err != nil {
 		return err
 	}
 
@@ -49,27 +51,4 @@ func (s Store) tempPath() string {
 
 func (s Store) lockPath() string {
 	return path.Join(s.crapPath(), "lock")
-}
-
-func syncFile(name string) error {
-	dir, err := os.Open(name)
-	if err != nil {
-		return err
-	}
-	defer dir.Close()
-
-	if err := dir.Sync(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func fileExist(name string) (bool, error) {
-	if _, err := os.Stat(name); os.IsNotExist(err) {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-	return true, nil
 }

@@ -2,7 +2,7 @@ package store
 
 import "os"
 
-import "crap/kvmap"
+import "crap/config"
 
 type Store struct {
 	path string
@@ -10,21 +10,12 @@ type Store struct {
 	filePerm os.FileMode
 }
 
-func New(config *kvmap.KVMap) (*Store, error) {
-	path, err := config.GetString("store.path")
-	if err != nil {
-		panic(err)
-	}
-	dirPerm, err := config.GetIntString("store.dir_permissions")
-	if err != nil {
-		panic(err)
-	}
-	filePerm, err := config.GetIntString("store.file_permissions")
-	if err != nil {
-		panic(err)
-	}
-	s := Store{path, os.FileMode(dirPerm), os.FileMode(filePerm)}
+func New(config config.Config) (*Store, error) {
+	path := config.GetString("store.path")
+	dirPerm := config.GetIntString("store.dir_permissions")
+	filePerm := config.GetIntString("store.file_permissions")
 
+	s := Store{path, os.FileMode(dirPerm), os.FileMode(filePerm)}
 	if err := s.initStore(); err != nil {
 		return nil, err
 	}

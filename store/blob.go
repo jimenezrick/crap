@@ -60,7 +60,7 @@ func (b *Blob) Store() (string, error) {
 	if err := os.Rename(src, dest); err != nil {
 		return "", err
 	}
-	if err := syncFile(path.Dir(dest)); err != nil {
+	if err := util.SyncFile(path.Dir(dest)); err != nil {
 		return "", err
 	}
 

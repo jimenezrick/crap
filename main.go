@@ -7,10 +7,13 @@ import (
 )
 
 import (
+	"crap/config"
 	"crap/network"
 	"crap/store"
 	"crap/log"
 )
+
+var configFiles []string = []string{"/etc/crap/config.json", "config.json"}
 
 func main() {
 	if len(os.Args) == 1 {
@@ -27,7 +30,7 @@ func usage() {
 }
 
 func server() {
-	config := loadConfig()
+	config := config.LoadConfig(configFiles)
 	log.Init(config)
 
 	store, err := store.New(config)
@@ -50,7 +53,7 @@ func server() {
 }
 
 func client() {
-	config := loadConfig()
+	config := config.LoadConfig(configFiles)
 	log.Init(config)
 
 	conn, err := network.Connect(os.Args[1])

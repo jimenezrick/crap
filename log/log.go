@@ -7,20 +7,14 @@ import (
 	"log/syslog"
 )
 
-import "crap/kvmap"
+import "crap/config"
 
 var Info *log.Logger
 var Debug *log.Logger
 
-func Init(config *kvmap.KVMap) {
-	debug, err := config.GetBool("log.debug")
-	if err != nil {
-		panic(err)
-	}
-	sys, err := config.GetBool("log.syslog")
-	if err != nil {
-		panic(err)
-	}
+func Init(config config.Config) {
+	debug := config.GetBool("log.debug")
+	sys := config.GetBool("log.syslog")
 
 	Debug = log.New(ioutil.Discard, "", 0)
 	if sys {
