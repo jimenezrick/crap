@@ -10,14 +10,14 @@ type keyRequest struct {
 	Val string `json:"key"`
 }
 
-type result struct {
-	Val  string `json:"result"`
+type response struct {
+	Val  string `json:"response"`
 	Info string `json:"info,omitempty"`
 }
 
-func resultError(res result) error {
+func responseError(res response) error {
 	if res.Info != "" {
 		return errors.New("network: " + res.Info)
 	}
-	return errors.New("network: erroneous result")
+	return errors.New("network: erroneous response")
 }

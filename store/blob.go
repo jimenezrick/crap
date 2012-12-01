@@ -1,9 +1,5 @@
 package store
 
-// XXX: create(O_EXCLUSIVE) the file that is going to be renamed, as a lock for the destination:
-//      Blob.Lock() -> err := BlobExist
-//      Empty file ^^^
-
 // XXX: Encrypt AES
 // XXX: Conn SSL
 // XXX: Retrieve(key string) *Blob
@@ -40,32 +36,38 @@ func (s Store) NewBlob() (*Blob, error) {
 	return &b, nil
 }
 
-func (b *Blob) Store() (string, error) {
+func (b *Blob) Store() ([]byte, error) {
 	defer b.file.Close()
 	b.HashedWriter.(*hashed.SHA1FileWriter).Flush()
 
 	if err := b.file.Chmod(b.store.filePerm); err != nil {
-		return "", err
+		return nil, err
 	}
 	if err := b.file.Sync(); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	src := b.file.Name()
 	dest := b.path()
 
 	if err := os.MkdirAll(path.Dir(dest), b.store.dirPerm); err != nil {
-		return "", err
+		return nil, err
 	}
+
+	// XXX: Return something like os.PathError
+	if err := b.lock(); err != nil {
+		return nil, err
+	}
+
 	if err := os.Rename(src, dest); err != nil {
-		return "", err
+		return nil, err
 	}
 	if err := util.SyncFile(path.Dir(dest)); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	runtime.SetFinalizer(b, nil)
-	return b.key(), nil
+	return b.Sum(nil), nil
 }
 
 func (b *Blob) Abort() error {
@@ -80,11 +82,11 @@ func (b *Blob) Abort() error {
 	return nil
 }
 
-func (b *Blob) key() string {
-	return util.HexHash(b)
+func (b *Blob) lock() error {
+	return util.CreateLockFile(b.path(), b.store.filePerm)
 }
 
 func (b *Blob) path() string {
-	hash := b.key()
+	hash := util.HexHash(b)
 	return path.Join(b.store.blobPath(), hash[:2], hash[2:])
 }

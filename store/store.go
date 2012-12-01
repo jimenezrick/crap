@@ -2,7 +2,10 @@ package store
 
 import "os"
 
-import "crap/config"
+import (
+	"crap/config"
+	"crap/util"
+)
 
 type Store struct {
 	path string
@@ -24,16 +27,7 @@ func New(config config.Config) (*Store, error) {
 }
 
 func (s Store) Lock() error {
-	file, err := os.OpenFile(
-		s.lockPath(),
-		os.O_WRONLY | os.O_CREATE | os.O_EXCL,
-		s.filePerm)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return nil
+	return util.CreateLockFile(s.lockPath(), s.filePerm)
 }
 
 func (s Store) Unlock() error {

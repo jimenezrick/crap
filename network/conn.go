@@ -55,13 +55,13 @@ func (c *Conn) StoreBlob(file *os.File) (string, error) {
 		return "", err
 	}
 
-	var res result
+	var res response
 	if err := c.ReadJSONFrame(&res); err != nil {
 		return "", err
 	}
 
 	if res.Val != "ok" {
-		return "", resultError(res)
+		return "", responseError(res)
 	}
 
 	return key, nil

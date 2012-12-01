@@ -1,5 +1,7 @@
 package network
 
+// XXX: Refactor this file <-- !!!
+
 // XXX: Add more logging everywhere
 // XXX: Recover from panic halding peers
 // XXX: Show message when new peer connects
@@ -66,11 +68,10 @@ func (n *Network) handleConnection(conn *Conn) {
 
 	switch req.Val {
 	case "store":
-		key, err := n.handleStore(conn)
+		_, err := n.handleStore(conn)
 		if err != nil {
 			log.Print("Error: ", err)
 		}
-		log.Print("Blob key: ", key)
 	default:
 		log.Print("Error: not implemented")
 		return
@@ -81,30 +82,29 @@ func (n *Network) handleConnection(conn *Conn) {
 		log.Print("Error: ", err)
 		return
 	}
-	log.Print("Key: ", key)
 
-	res := result{"ok", "everything went smoothly"}
+	res := result{"ok", ""}
 	if err := conn.WriteJSONFrame(res); err != nil {
 		log.Print("Error: ", err)
 		return
 	}
 }
 
-func (n *Network) handleStore(conn *Conn) (string, error) {
+func (n *Network) handleStore(conn *Conn) ([]byte, error) {
 	blob, err := n.store.NewBlob()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if err = conn.ReadBlobFrameTo(blob); err != nil {
 		blob.Abort()
-		return "", err
+		return nil, err
 	}
 
 	key, err := blob.Store()
 	if err != nil {
 		blob.Abort()
-		return "", err
+		return nil, err
 	}
 
 	// XXX: Check req.Key with key
