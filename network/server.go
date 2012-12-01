@@ -83,7 +83,7 @@ func (n *Network) handleConnection(conn *Conn) {
 		return
 	}
 
-	res := result{"ok", ""}
+	res := response{"ok", ""}
 	if err := conn.WriteJSONFrame(res); err != nil {
 		log.Print("Error: ", err)
 		return
@@ -112,3 +112,27 @@ func (n *Network) handleStore(conn *Conn) ([]byte, error) {
 	return key, nil
 }
 // XXX XXX XXX
+
+
+
+
+
+
+
+
+
+//
+// XXX: Meter dentro de una Conn la Network? Renombrar Network? (listener?)
+//
+
+
+
+func (n *Network) respondOK(conn *Conn) {
+	n.respond(conn, "ok", "")
+}
+
+func (n *Network) respond(conn *Conn, res, info string) {
+	if err := conn.WriteJSONFrame(response{res, info}); err != nil {
+		panic(err)
+	}
+}
