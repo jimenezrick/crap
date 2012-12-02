@@ -5,6 +5,8 @@ package skiplist
 
 // Ref: William Pugh "Skip lists: a probabilistic alternative to balanced trees"
 
+import "math/rand"
+
 func (s *SkipList) SetP(p float64) {
 	if s.length != 0 {
 		panic("skiplist: container not empty")
@@ -17,6 +19,13 @@ func (s *SkipList) SetMaxLevel(maxElems uint) {
 		panic("skiplist: container not empty")
 	}
 	s.maxLevel = expectedLevels(s.p, maxElems)
+}
+
+func (s *SkipList) SetRand(src rand.Source) {
+	if s.length != 0 {
+		panic("skiplist: container not empty")
+	}
+	s.rand = rand.New(src)
 }
 
 func (s *SkipList) Len() uint {
