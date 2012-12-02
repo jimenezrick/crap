@@ -1,7 +1,9 @@
 package skiplist
 
+import "math/rand"
+
 type node struct {
-	forward []*node
+	forward    []*node
 	key, value interface{}
 }
 
@@ -13,9 +15,10 @@ func (n *node) next() *node {
 }
 
 type SkipList struct {
-	less func(l, r interface{}) bool
-	header *node
-	length uint
-	P float64
-	MaxLevel int
+	less     func(l, r interface{}) bool
+	header   *node
+	length   uint
+	p        float64
+	maxLevel int
+	rand     *rand.Rand
 }

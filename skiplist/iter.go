@@ -1,50 +1,36 @@
 package skiplist
 
 type Iterator interface {
-	Next() bool
-	Key() interface{}
-	Value() interface{}
+	Next() (key interface{}, value interface{})
 }
 
 type iterator struct {
-	current *node
+	current    *node
 	key, value interface{}
 }
 
-func (i *iterator) Next() bool {
+func (i *iterator) Next() (interface{}, interface{}) {
 	if next := i.current.next(); next != nil {
 		i.current = next
-		i.key = next.key
-		i.value = next.value
-		return true
+		return next.key, next.value
 	}
-	return false
-}
-
-func (i *iterator) Key() interface{} {
-	return i.key
-}
-
-func (i *iterator) Value() interface{} {
-	return i.value
+	return nil, nil
 }
 
 type rangeIterator struct {
 	iterator
-	limit interface{}
+	limit    interface{}
 	skipList *SkipList
 }
 
-func (r *rangeIterator) Next() bool {
+func (r *rangeIterator) Next() (interface{}, interface{}) {
 	if next := r.current.next(); next != nil {
 		if r.skipList.less(next.key, r.limit) {
 			r.current = next
-			r.key = next.key
-			r.value = next.value
-			return true
+			return next.key, next.value
 		}
 	}
-	return false
+	return nil, nil
 }
 
 func (s *SkipList) Iterator() Iterator {
@@ -52,10 +38,10 @@ func (s *SkipList) Iterator() Iterator {
 }
 
 func (s *SkipList) Range(from, to interface{}) Iterator {
-	start := s.getPath(nil, from)
+	start := s.getPath(nil, from, true)
 	return &rangeIterator{
 		iterator: iterator{current: &node{forward: []*node{start}}},
-		limit: to,
+		limit:    to,
 		skipList: s,
 	}
 }
