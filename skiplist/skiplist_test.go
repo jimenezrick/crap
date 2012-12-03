@@ -52,16 +52,6 @@ func TestRandomLevel(t *testing.T) {
 	s := New()
 	s.SetP(1.0)
 	s.maxLevel = 3
-	if s.randomLevel() != 1 {
-		t.Error("random level should be 1")
-	}
-
-	s.header.forward = []*node{nil, nil}
-	if s.randomLevel() != 2 {
-		t.Error("random level should be 2")
-	}
-
-	s.header.forward = []*node{nil, nil, nil}
 	if s.randomLevel() != 2 {
 		t.Error("random level should be 2")
 	}
