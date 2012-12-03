@@ -6,9 +6,16 @@ import (
 	"time"
 )
 
+type Key interface{}
+
+type Value interface{}
+
+type LessFunc func(l, r Key) bool
+
 type node struct {
-	forward    []*node
-	key, value interface{}
+	forward []*node
+	key     Key
+	value   Value
 }
 
 func (n *node) next() *node {
@@ -16,7 +23,7 @@ func (n *node) next() *node {
 }
 
 type SkipList struct {
-	less     func(l, r interface{}) bool
+	less     LessFunc
 	header   *node
 	length   uint
 	p        float64
@@ -28,7 +35,7 @@ type Ordered interface {
 	Less(Ordered) bool
 }
 
-func NewCustomMap(less func(l, r interface{}) bool) *SkipList {
+func NewCustomMap(less LessFunc) *SkipList {
 	return &SkipList{
 		less:     less,
 		header:   &node{forward: []*node{nil}},
@@ -39,25 +46,25 @@ func NewCustomMap(less func(l, r interface{}) bool) *SkipList {
 }
 
 func New() *SkipList {
-	return NewCustomMap(func(l, r interface{}) bool {
+	return NewCustomMap(func(l, r Key) bool {
 		return l.(Ordered).Less(r.(Ordered))
 	})
 }
 
 func NewIntMap() *SkipList {
-	return NewCustomMap(func(l, r interface{}) bool {
+	return NewCustomMap(func(l, r Key) bool {
 		return l.(int) < r.(int)
 	})
 }
 
 func NewStringMap() *SkipList {
-	return NewCustomMap(func(l, r interface{}) bool {
+	return NewCustomMap(func(l, r Key) bool {
 		return l.(string) < r.(string)
 	})
 }
 
 func NewByteMap() *SkipList {
-	return NewCustomMap(func(l, r interface{}) bool {
+	return NewCustomMap(func(l, r Key) bool {
 		return bytes.Compare(l.([]byte), r.([]byte)) == -1
 	})
 }

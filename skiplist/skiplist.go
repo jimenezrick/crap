@@ -2,7 +2,6 @@
 // "A skip list cookbook" by William Pugh.
 package skiplist
 
-// XXX: Benchmark fixed dice
 // XXX: Merge operation
 //
 // XXX Set: (fichero separado)
@@ -52,7 +51,7 @@ func (s *SkipList) randomLevel() (n int) {
 	return
 }
 
-func (s *SkipList) getPath(update []*node, key interface{}, next bool) *node {
+func (s *SkipList) getPath(update []*node, key Key, next bool) *node {
 	current := s.header
 	for i := s.level(); i >= 0; i-- {
 		for current.forward[i] != nil && s.less(current.forward[i].key, key) {
@@ -72,7 +71,7 @@ func (s *SkipList) getPath(update []*node, key interface{}, next bool) *node {
 	return current
 }
 
-func (s *SkipList) Get(key interface{}) (interface{}, bool) {
+func (s *SkipList) Get(key Key) (Value, bool) {
 	candidate := s.getPath(nil, key, true)
 	if candidate == nil || candidate.key != key {
 		return nil, false
@@ -80,7 +79,7 @@ func (s *SkipList) Get(key interface{}) (interface{}, bool) {
 	return candidate.value, true
 }
 
-func (s *SkipList) GetLesser(max interface{}) (interface{}, interface{}) {
+func (s *SkipList) GetLesser(max Key) (Key, Value) {
 	candidate := s.getPath(nil, max, false)
 	if candidate != nil {
 		return candidate.key, candidate.value
@@ -88,7 +87,7 @@ func (s *SkipList) GetLesser(max interface{}) (interface{}, interface{}) {
 	return nil, nil
 }
 
-func (s *SkipList) GetGreaterOrEqual(min interface{}) (interface{}, interface{}) {
+func (s *SkipList) GetGreaterOrEqual(min Key) (Key, Value) {
 	candidate := s.getPath(nil, min, true)
 	if candidate != nil {
 		return candidate.key, candidate.value
@@ -96,7 +95,7 @@ func (s *SkipList) GetGreaterOrEqual(min interface{}) (interface{}, interface{})
 	return nil, nil
 }
 
-func (s *SkipList) GetMin() (interface{}, interface{}) {
+func (s *SkipList) GetMin() (Key, Value) {
 	min := s.header.next()
 	if min != nil {
 		return min.key, min.value
@@ -104,7 +103,7 @@ func (s *SkipList) GetMin() (interface{}, interface{}) {
 	return nil, nil
 }
 
-func (s *SkipList) GetMax() (interface{}, interface{}) {
+func (s *SkipList) GetMax() (Key, Value) {
 	current := s.header
 	for i := s.level(); i >= 0; i-- {
 		for current.forward[i] != nil {
@@ -118,15 +117,15 @@ func (s *SkipList) GetMax() (interface{}, interface{}) {
 	return current.key, current.value
 }
 
-func (s *SkipList) Insert(key, value interface{}) (interface{}, bool) {
+func (s *SkipList) Insert(key Key, value Value) (Value, bool) {
 	return s.insert(key, value, false)
 }
 
-func (s *SkipList) InsertMulti(key, value interface{}) (interface{}, bool) {
+func (s *SkipList) InsertMulti(key Key, value Value) (Value, bool) {
 	return s.insert(key, value, true)
 }
 
-func (s *SkipList) insert(key, value interface{}, multi bool) (interface{}, bool) {
+func (s *SkipList) insert(key Key, value Value, multi bool) (Value, bool) {
 	update := make([]*node, s.level()+1)
 	candidate := s.getPath(update, key, true)
 	if candidate != nil && candidate.key == key && !multi {
@@ -153,7 +152,7 @@ func (s *SkipList) insert(key, value interface{}, multi bool) (interface{}, bool
 	return nil, false
 }
 
-func (s *SkipList) Delete(key interface{}) (interface{}, bool) {
+func (s *SkipList) Delete(key Key) (Value, bool) {
 	update := make([]*node, s.level()+1)
 	candidate := s.getPath(update, key, true)
 	if candidate == nil || candidate.key != key {
