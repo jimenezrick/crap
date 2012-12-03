@@ -59,30 +59,73 @@ func TestRandomLevel(t *testing.T) {
 }
 
 func TestGetPath(t *testing.T) {
-	s := New()
+	s := NewIntMap()
 	if s.getPath(nil, nil, false) != nil {
 		t.Error("node should be nil")
 	}
-
 	if s.getPath(nil, nil, true) != nil {
 		t.Error("node should be nil")
+	}
+
+	s.Insert(1, nil)
+	update := make([]*node, s.level() + 1)
+
+	if s.getPath(update, 1, false) != nil {
+		t.Error("node should be nil")
+	}
+	if update[0] != s.header {
+		t.Error("update should contain header")
+	}
+
+	if s.getPath(update, 1, true) != s.header.forward[0] {
+		t.Error("node should be s.header.forward[0]")
+	}
+	if update[0] != s.header {
+		t.Error("update should contain header")
+	}
+
+	if s.getPath(update, 2, true) != nil {
+		t.Error("node should be nil")
+	}
+	if update[0] != s.header.forward[0] {
+		t.Error("update should contain header")
+	}
+
+	if s.getPath(update, 2, false) != s.header.forward[0] {
+		t.Error("node should be s.header.forward[0]")
+	}
+	if update[0] != s.header.forward[0] {
+		t.Error("update should contain header")
 	}
 }
 
 func TestGet(t *testing.T) {
-	s := New()
-	if val, ok := s.Get(123); ok || val != nil {
+	s := NewIntMap()
+	if val, ok := s.Get(1); ok || val != nil {
 		t.Error("value should be nil")
 	}
+
+	if s.Insert(1, 123) != false {
+		t.Error("ok should be false")
+	}
+	if s.Insert(1, 666) != true {
+		t.Error("ok should be true")
+	}
+
+	if s.InsertMulti(2, 123) != false {
+		t.Error("ok should be false")
+	}
+	if s.InsertMulti(2, 666) != false {
+		t.Error("ok should be false")
+	}
+
+	if val, ok := s.Get(1); !ok || val != 666 {
+		t.Error("value should be 666")
+	}
+	if val, ok := s.Get(2); !ok || val != 666 {
+		t.Error("value should be 666")
+	}
 }
-
-
-
-
-
-
-
-
 
 func TestGetLesser(t *testing.T) {
 	s := NewIntMap()

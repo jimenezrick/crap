@@ -3,16 +3,13 @@
 package skiplist
 
 // XXX: Benchmark fixed dice
-// XXX: Priority queue API, create a new type (fichero separado)
-// XXX: Multi-map/set function, create a new type (fichero separado)
-//
 // XXX: Merge operation
 //
-// Set: (fichero separado)
-// Add, Remove, Contains
+// XXX Set: (fichero separado)
+//     Add, AddMulti, Remove, Contains
 //
-// Heap: (fichero separado)
-// Peek(), Pop(), Push(value) use less() to order priorities
+// XXX Heap: (fichero separado)
+//     Peek(), Pop(), Push(value) use less() to order priorities
 
 import "math/rand"
 
