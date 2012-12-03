@@ -223,3 +223,35 @@ func TestDelete(t *testing.T) {
 		t.Error("value should be nil")
 	}
 }
+
+func TestIterator(t *testing.T) {
+	s := NewIntMap()
+	s.Insert(1, 123)
+	s.Insert(2, 666)
+	s.Insert(3, 8)
+
+	iter := s.Iterator()
+	for i, v := range []int{123, 666, 8} {
+		key, val := iter.Next()
+		if key != i+1 || val != v {
+			t.Error("value should be", v)
+		}
+	}
+}
+
+func TestRange(t *testing.T) {
+	s := NewIntMap()
+	s.Insert(1, 123)
+	s.Insert(2, 666)
+	s.Insert(3, 8)
+	s.Insert(4, 999)
+	s.Insert(5, 0)
+
+	iter := s.Range(2, 4)
+	for i, v := range []int{666, 8} {
+		key, val := iter.Next()
+		if key != i+2 || val != v {
+			t.Error("value should be", v)
+		}
+	}
+}
