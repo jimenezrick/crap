@@ -4,8 +4,6 @@ package skiplist
 
 // XXX: Merge operation
 //
-// XXX Set: (fichero separado)
-//     Add, AddMulti, Remove, Contains
 //
 // XXX Heap: (fichero separado)
 //     Peek(), Pop(), Push(value) use less() to order priorities
