@@ -98,13 +98,15 @@ func (s *SkipList) GetMin() (interface{}, interface{}) {
 }
 
 func (s *SkipList) GetMax() (interface{}, interface{}) {
-	// XXX XXX XXX
 	current := s.header
 	for i := s.level(); i >= 0; i-- {
 		for current.forward[i] != nil {
 			current = current.forward[i]
 		}
 	}
+
+	if current == s.header {
+		return nil, nil
+	}
 	return current.key, current.value
-	// XXX XXX XXX
 }

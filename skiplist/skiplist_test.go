@@ -74,3 +74,10 @@ func TestGetMin(t *testing.T) {
 		t.Error("min should be nil")
 	}
 }
+
+func TestGetMax(t *testing.T) {
+	s := New()
+	if key, val := s.GetMax(); key != nil || val != nil {
+		t.Error("max should be nil")
+	}
+}
