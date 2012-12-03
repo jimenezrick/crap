@@ -195,3 +195,31 @@ func TestGetMax(t *testing.T) {
 		t.Error("max should be 8")
 	}
 }
+
+func TestDelete(t *testing.T) {
+	s := NewIntMap()
+	s.Insert(3, 1)
+	s.Insert(8, 2)
+	s.InsertMulti(8, 4)
+
+	if val, ok := s.Delete(100); ok || val != nil {
+		t.Error("value should be nil")
+	}
+
+	if val, ok := s.Delete(3); !ok || val != 1 {
+		t.Error("value should be 1")
+	}
+	if val, ok := s.Delete(3); ok || val != nil {
+		t.Error("value should be nil")
+	}
+
+	if val, ok := s.Delete(8); !ok || val != 4 {
+		t.Error("value should be 4")
+	}
+	if val, ok := s.Delete(8); !ok || val != 2 {
+		t.Error("value should be 2")
+	}
+	if val, ok := s.Delete(8); ok || val != nil {
+		t.Error("value should be nil")
+	}
+}
