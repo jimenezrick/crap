@@ -76,8 +76,8 @@ func TestGetPath(t *testing.T) {
 		t.Error("update should contain header")
 	}
 
-	if s.getPath(update, 1, true) != s.header.forward[0] {
-		t.Error("node should be s.header.forward[0]")
+	if s.getPath(update, 1, true) != s.header.next() {
+		t.Error("node should be s.header.next()")
 	}
 	if update[0] != s.header {
 		t.Error("update should contain header")
@@ -86,14 +86,14 @@ func TestGetPath(t *testing.T) {
 	if s.getPath(update, 2, true) != nil {
 		t.Error("node should be nil")
 	}
-	if update[0] != s.header.forward[0] {
+	if update[0] != s.header.next() {
 		t.Error("update should contain header")
 	}
 
-	if s.getPath(update, 2, false) != s.header.forward[0] {
-		t.Error("node should be s.header.forward[0]")
+	if s.getPath(update, 2, false) != s.header.next() {
+		t.Error("node should be s.header.next()")
 	}
-	if update[0] != s.header.forward[0] {
+	if update[0] != s.header.next() {
 		t.Error("update should contain header")
 	}
 }

@@ -26,7 +26,7 @@ func (s *Set) Insert(key Key) bool {
 }
 
 func (s *Set) InsertMulti(key Key) bool {
-	_, ok := s.SkipList.Insert(key, nil)
+	_, ok := s.SkipList.InsertMulti(key, nil)
 	return ok
 }
 

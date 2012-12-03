@@ -2,11 +2,9 @@
 // "A skip list cookbook" by William Pugh.
 package skiplist
 
+//
 // XXX: Merge operation
 //
-//
-// XXX Heap: (fichero separado)
-//     Peek(), Pop(), Push(value) use less() to order priorities
 
 import "math/rand"
 

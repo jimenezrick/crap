@@ -17,7 +17,7 @@ func (s *SkipList) DumpASCII(w io.Writer) {
 	levels := len(node.forward)
 
 	var length uint
-	for length = 0; node != nil; length, node = length+1, node.forward[0] {
+	for length = 0; node != nil; length, node = length+1, node.next() {
 		printNode(w, node, levels)
 		fmt.Fprint(w, "\t")
 		printLinks(w, levels)
