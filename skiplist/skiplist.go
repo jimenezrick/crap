@@ -68,8 +68,10 @@ func (s *SkipList) getPath(update []*node, key interface{}, next bool) *node {
 		}
 	}
 
-	if next || current == s.header {
+	if next {
 		return current.next()
+	} else if current == s.header {
+		return nil
 	}
 	return current
 }
