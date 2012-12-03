@@ -1,15 +1,14 @@
 package skiplist
 
 type Iterator interface {
-	Next() (key interface{}, value interface{})
+	Next() (key Key, value Value)
 }
 
 type iterator struct {
-	current    *node
-	key, value interface{}
+	current *node
 }
 
-func (i *iterator) Next() (interface{}, interface{}) {
+func (i *iterator) Next() (Key, Value) {
 	if next := i.current.next(); next != nil {
 		i.current = next
 		return next.key, next.value
@@ -19,11 +18,11 @@ func (i *iterator) Next() (interface{}, interface{}) {
 
 type rangeIterator struct {
 	iterator
-	limit    interface{}
+	limit    Key
 	skipList *SkipList
 }
 
-func (r *rangeIterator) Next() (interface{}, interface{}) {
+func (r *rangeIterator) Next() (Key, Value) {
 	if next := r.current.next(); next != nil {
 		if r.skipList.less(next.key, r.limit) {
 			r.current = next
@@ -34,13 +33,13 @@ func (r *rangeIterator) Next() (interface{}, interface{}) {
 }
 
 func (s *SkipList) Iterator() Iterator {
-	return &iterator{current: s.header}
+	return &iterator{s.header}
 }
 
-func (s *SkipList) Range(from, to interface{}) Iterator {
+func (s *SkipList) Range(from, to Key) Iterator {
 	start := s.getPath(nil, from, true)
 	return &rangeIterator{
-		iterator: iterator{current: &node{forward: []*node{start}}},
+		iterator: iterator{&node{forward: []*node{start}}},
 		limit:    to,
 		skipList: s,
 	}
