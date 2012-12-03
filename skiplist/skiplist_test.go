@@ -105,18 +105,18 @@ func TestGet(t *testing.T) {
 		t.Error("value should be nil")
 	}
 
-	if s.Insert(1, 123) != false {
-		t.Error("ok should be false")
+	if val, ok := s.Insert(1, 123); ok || val != nil {
+		t.Error("value should be nil")
 	}
-	if s.Insert(1, 666) != true {
-		t.Error("ok should be true")
+	if val, ok := s.Insert(1, 666); !ok || val != 123 {
+		t.Error("value should be 123")
 	}
 
-	if s.InsertMulti(2, 123) != false {
-		t.Error("ok should be false")
+	if val, ok := s.InsertMulti(2, 123); ok || val != nil {
+		t.Error("value should be nil")
 	}
-	if s.InsertMulti(2, 666) != false {
-		t.Error("ok should be false")
+	if val, ok := s.InsertMulti(2, 666); ok || val != nil {
+		t.Error("value should be nil")
 	}
 
 	if val, ok := s.Get(1); !ok || val != 666 {

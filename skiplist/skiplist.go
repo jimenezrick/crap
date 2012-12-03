@@ -119,15 +119,15 @@ func (s *SkipList) GetMax() (interface{}, interface{}) {
 	return current.key, current.value
 }
 
-func (s *SkipList) Insert(key, value interface{}) bool {
+func (s *SkipList) Insert(key, value interface{}) (interface{}, bool) {
 	return s.insert(key, value, false)
 }
 
-func (s *SkipList) InsertMulti(key, value interface{}) bool {
+func (s *SkipList) InsertMulti(key, value interface{}) (interface{}, bool) {
 	return s.insert(key, value, true)
 }
 
-func (s *SkipList) insert(key, value interface{}, multi bool) bool {
+func (s *SkipList) insert(key, value interface{}, multi bool) (interface{}, bool) {
 	if key == nil {
 		panic("skiplist: nil key")
 	}
@@ -135,8 +135,9 @@ func (s *SkipList) insert(key, value interface{}, multi bool) bool {
 	update := make([]*node, s.level()+1)
 	candidate := s.getPath(update, key, true)
 	if candidate != nil && candidate.key == key && !multi {
+		oldValue := candidate.value
 		candidate.value = value
-		return true
+		return oldValue, true
 	}
 
 	newLevel := s.randomLevel()
@@ -154,5 +155,5 @@ func (s *SkipList) insert(key, value interface{}, multi bool) bool {
 	}
 
 	s.length++
-	return false
+	return nil, false
 }
