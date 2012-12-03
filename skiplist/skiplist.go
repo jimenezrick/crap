@@ -157,3 +157,26 @@ func (s *SkipList) insert(key, value interface{}, multi bool) (interface{}, bool
 	s.length++
 	return nil, false
 }
+
+func (s *SkipList) Delete(key interface{}) (interface{}, bool) {
+	if key == nil {
+		panic("skiplist: nil key")
+	}
+
+	update := make([]*node, s.level()+1)
+	candidate := s.getPath(update, key, true)
+	if candidate == nil || candidate.key != key {
+		return nil, false
+	}
+
+	for i, level := 0, s.level(); i <= level && update[i].forward[i] == candidate; i++ {
+		update[i].forward[i] = candidate.forward[i]
+	}
+
+	for s.level() > 0 && s.header.forward[s.level()] == nil {
+		s.header.forward = s.header.forward[:s.level()]
+	}
+
+	s.length--
+	return candidate.value, true
+}

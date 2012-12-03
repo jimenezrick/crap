@@ -23,13 +23,22 @@ func TestLen(t *testing.T) {
 		t.Error("length should be 0")
 	}
 
-	s.Insert(1, nil)
-	s.Insert(1, nil)
-	s.InsertMulti(1, nil)
+	s.Insert(1, 2)
+	s.Insert(1, 123)
+	s.InsertMulti(1, 666)
 	if s.Len() != 2 {
 		t.Error("length should be 2")
 	}
-	// TODO: Use Delete()
+
+	if val, ok := s.Delete(1); !ok || val != 666 {
+		t.Error("value should be 666")
+	}
+	if val, ok := s.Delete(1); !ok || val != 123 {
+		t.Error("value should be 123")
+	}
+	if val, ok := s.Delete(1); ok || val != nil {
+		t.Error("value should be nil")
+	}
 }
 
 func TestLevel(t *testing.T) {
