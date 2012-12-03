@@ -1,9 +1,9 @@
 package main
 
 import (
-	"os"
 	"fmt"
 	"math/rand"
+	"os"
 )
 
 import "crap/skiplist"
