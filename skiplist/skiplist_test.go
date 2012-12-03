@@ -45,8 +45,32 @@ func TestRandomLevel(t *testing.T) {
 	}
 
 	s.header.forward = []*node{nil, nil, nil}
-	t.Log(s.randomLevel())
 	if s.randomLevel() != 2 {
 		t.Error("random level should be 2")
+	}
+}
+
+func TestGetPath(t *testing.T) {
+	s := New()
+	if s.getPath(nil, nil, false) != nil {
+		t.Error("node should be nil")
+	}
+
+	if s.getPath(nil, nil, true) != nil {
+		t.Error("node should be nil")
+	}
+}
+
+func TestGet(t *testing.T) {
+	s := New()
+	if val, ok := s.Get(123); ok || val != nil {
+		t.Error("value should be nil")
+	}
+}
+
+func TestGetMin(t *testing.T) {
+	s := New()
+	if key, val := s.GetMin(); key != nil || val != nil {
+		t.Error("min should be nil")
 	}
 }

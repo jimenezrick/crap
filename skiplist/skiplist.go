@@ -59,10 +59,10 @@ func (s *SkipList) getPath(update []*node, key interface{}, next bool) *node {
 		}
 	}
 
-	if next {
+	if next || current == s.header {
 		return current.next()
 	}
-	return current // XXX: Check current != s.header?
+	return current
 }
 
 func (s *SkipList) Get(key interface{}) (interface{}, bool) {
