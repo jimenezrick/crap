@@ -12,9 +12,6 @@ type node struct {
 }
 
 func (n *node) next() *node {
-	if len(n.forward) == 0 {
-		return nil
-	}
 	return n.forward[0]
 }
 
