@@ -255,3 +255,32 @@ func TestRange(t *testing.T) {
 		}
 	}
 }
+
+func TestHeap(t *testing.T) {
+	h := NewIntHeap()
+	if h.Peek() != nil {
+		t.Error("peek should be nil")
+	}
+
+	h.Push(2)
+	h.Push(3)
+	h.Push(2)
+	h.Push(1)
+
+	if h.Pop() != 1 {
+		t.Error("pop should be 1")
+	}
+	if h.Pop() != 2 {
+		t.Error("pop should be 2")
+	}
+	if h.Pop() != 2 {
+		t.Error("pop should be 2")
+	}
+	if h.Pop() != 3 {
+		t.Error("pop should be 3")
+	}
+
+	if h.Peek() != nil {
+		t.Error("peek should be nil")
+	}
+}
