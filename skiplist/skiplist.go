@@ -3,7 +3,6 @@
 package skiplist
 
 // XXX: Benchmark fixed dice
-// XXX: Dump dot file (fichero separado)
 // XXX: Priority queue API, create a new type (fichero separado)
 // XXX: Multi-map/set function, create a new type (fichero separado)
 //
@@ -13,7 +12,7 @@ package skiplist
 // Add, Remove, Contains
 //
 // Heap: (fichero separado)
-// Peak(), Pop(), Push(value) use less() to order priorities
+// Peek(), Pop(), Push(value) use less() to order priorities
 
 import "math/rand"
 
@@ -100,7 +99,7 @@ func (s *SkipList) GetGreaterOrEqual(min interface{}) (interface{}, interface{})
 }
 
 func (s *SkipList) GetMin() (interface{}, interface{}) {
-	min := s.header.forward[0]
+	min := s.header.next()
 	if min != nil {
 		return min.key, min.value
 	}
@@ -121,40 +120,40 @@ func (s *SkipList) GetMax() (interface{}, interface{}) {
 	return current.key, current.value
 }
 
-
-
-
-
-
-
-
 func (s *SkipList) Insert(key, value interface{}) bool {
 	return s.insert(key, value, false)
 }
 
-
+func (s *SkipList) InsertMulti(key, value interface{}) bool {
+	return s.insert(key, value, true)
+}
 
 func (s *SkipList) insert(key, value interface{}, multi bool) bool {
-
-	// XXX: panic if key == nil?
+	if key == nil {
+		panic("skiplist: nil key")
+	}
 
 	update := make([]*node, s.level() + 1)
 	candidate := s.getPath(update, key, true)
-
 	if candidate != nil && candidate.key == key && !multi {
 		candidate.value = value
 		return true
 	}
 
 	newLevel := s.randomLevel()
+	if level := s.level(); newLevel > level {
+		for i := level + 1; i <= newLevel; i++ {
+			update = append(update, s.header)
+			s.header.forward = append(s.header.forward, nil)
+		}
+	}
 
+	node := &node{make([]*node, newLevel + 1), key, value}
+	for i := 0; i <= newLevel; i++ {
+		node.forward[i] = update[i].forward[i]
+		update[i].forward[i] = node
+	}
 
-
-
-
-
+	s.length++
 	return false
 }
-
-
-// XXX: Delete

@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
-	s := skiplist.New()
+	s := skiplist.NewIntMap()
+	s.Insert(2, "foo")
+	s.Insert(1, "bar")
 	s.DumpASCII(os.Stderr)
 }
