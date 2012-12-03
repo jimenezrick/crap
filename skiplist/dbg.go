@@ -17,7 +17,7 @@ func (s *SkipList) DumpASCII(w io.Writer) {
 	levels := len(node.forward)
 
 	var length uint
-	for length = 0; node != nil; length, node = length + 1, node.forward[0] {
+	for length = 0; node != nil; length, node = length+1, node.forward[0] {
 		printNode(w, node, levels)
 		fmt.Fprint(w, "\t")
 		printLinks(w, levels)
@@ -27,7 +27,7 @@ func (s *SkipList) DumpASCII(w io.Writer) {
 		}
 	}
 
-	if length - 1 != s.length {
+	if length-1 != s.length {
 		panic("skiplist: length mismatch")
 	}
 	printNils(w, levels)
@@ -42,7 +42,7 @@ func printNode(w io.Writer, node *node, levels int) {
 			fmt.Fprintf(w, "[*]\t")
 		}
 	}
-	printLinks(w, levels - len(node.forward))
+	printLinks(w, levels-len(node.forward))
 }
 
 func printLinks(w io.Writer, levels int) {

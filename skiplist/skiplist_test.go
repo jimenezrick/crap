@@ -68,7 +68,7 @@ func TestGetPath(t *testing.T) {
 	}
 
 	s.Insert(1, nil)
-	update := make([]*node, s.level() + 1)
+	update := make([]*node, s.level()+1)
 
 	if s.getPath(update, 1, false) != nil {
 		t.Error("node should be nil")

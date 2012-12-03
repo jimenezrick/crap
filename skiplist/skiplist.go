@@ -48,7 +48,7 @@ func (s *SkipList) randomLevel() (n int) {
 	// Returns a random level in the range [0, s.level()+1] been at most
 	// equal to s.maxLevel-1. Used for slices indices.
 	level := s.level()
-	for n = 0; s.rand.Float64() < s.p && n <= level && n < s.maxLevel - 1; n++ {
+	for n = 0; s.rand.Float64() < s.p && n <= level && n < s.maxLevel-1; n++ {
 	}
 	return
 }
@@ -132,7 +132,7 @@ func (s *SkipList) insert(key, value interface{}, multi bool) bool {
 		panic("skiplist: nil key")
 	}
 
-	update := make([]*node, s.level() + 1)
+	update := make([]*node, s.level()+1)
 	candidate := s.getPath(update, key, true)
 	if candidate != nil && candidate.key == key && !multi {
 		candidate.value = value
@@ -147,7 +147,7 @@ func (s *SkipList) insert(key, value interface{}, multi bool) bool {
 		}
 	}
 
-	node := &node{make([]*node, newLevel + 1), key, value}
+	node := &node{make([]*node, newLevel+1), key, value}
 	for i := 0; i <= newLevel; i++ {
 		node.forward[i] = update[i].forward[i]
 		update[i].forward[i] = node

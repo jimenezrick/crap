@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"crap/skiplist"
+	"os"
 )
 
 func main() {
