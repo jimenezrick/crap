@@ -47,8 +47,7 @@ func (s *SkipList) level() int {
 func (s *SkipList) randomLevel() (n int) {
 	// Returns a random level in the range [0, s.level()+1] been at most
 	// equal to s.maxLevel-1. Used for slices indices.
-	level := s.level()
-	for n = 0; s.rand.Float64() < s.p && n <= level && n < s.maxLevel-1; n++ {
+	for n = 0; s.rand.Float64() < s.p && n < s.maxLevel-1; n++ {
 	}
 	return
 }
