@@ -27,6 +27,7 @@ func main() {
 
 func usage() {
 	fmt.Fprintln(os.Stderr, "Usage:", os.Args[0], "[<host> <file>]")
+	os.Exit(1)
 }
 
 func server() {
