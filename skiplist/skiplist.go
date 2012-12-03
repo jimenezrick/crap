@@ -128,10 +128,6 @@ func (s *SkipList) InsertMulti(key, value interface{}) (interface{}, bool) {
 }
 
 func (s *SkipList) insert(key, value interface{}, multi bool) (interface{}, bool) {
-	if key == nil {
-		panic("skiplist: nil key")
-	}
-
 	update := make([]*node, s.level()+1)
 	candidate := s.getPath(update, key, true)
 	if candidate != nil && candidate.key == key && !multi {
@@ -159,10 +155,6 @@ func (s *SkipList) insert(key, value interface{}, multi bool) (interface{}, bool
 }
 
 func (s *SkipList) Delete(key interface{}) (interface{}, bool) {
-	if key == nil {
-		panic("skiplist: nil key")
-	}
-
 	update := make([]*node, s.level()+1)
 	candidate := s.getPath(update, key, true)
 	if candidate == nil || candidate.key != key {
