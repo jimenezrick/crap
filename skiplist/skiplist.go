@@ -155,7 +155,8 @@ func (s *SkipList) Delete(key Key) (Value, bool) {
 		return nil, false
 	}
 
-	for i, level := 0, s.level(); i <= level && update[i].forward[i] == candidate; i++ {
+	for i, level := 0, s.level(); i <= level &&
+		update[i].forward[i] == candidate; i++ {
 		update[i].forward[i] = candidate.forward[i]
 	}
 
