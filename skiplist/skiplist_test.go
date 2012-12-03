@@ -18,10 +18,18 @@ func TestSetMaxLevel(t *testing.T) {
 }
 
 func TestLen(t *testing.T) {
-	s := New()
+	s := NewIntMap()
 	if s.Len() != 0 {
 		t.Error("length should be 0")
 	}
+
+	s.Insert(1, nil)
+	s.Insert(1, nil)
+	s.InsertMulti(1, nil)
+	if s.Len() != 2 {
+		t.Error("length should be 2")
+	}
+	// TODO: Use Delete()
 }
 
 func TestLevel(t *testing.T) {
@@ -68,16 +76,80 @@ func TestGet(t *testing.T) {
 	}
 }
 
+
+
+
+
+
+
+
+
+func TestGetLesser(t *testing.T) {
+	s := NewIntMap()
+	if key, val := s.GetLesser(1); key != nil || val != nil {
+		t.Error("lesser should be nil")
+	}
+
+	s.Insert(1, nil)
+	if key, val := s.GetLesser(1); key != nil || val != nil {
+		t.Error("lesser should be nil")
+	}
+
+	s.Insert(2, nil)
+	if key, val := s.GetLesser(2); key != 1 || val != nil {
+		t.Error("lesser should be 1")
+	}
+
+	if key, val := s.GetLesser(8); key != 2 || val != nil {
+		t.Error("lesser should be 2")
+	}
+}
+
+func TestGetGreaterOrEqual(t *testing.T) {
+	s := NewIntMap()
+	if key, val := s.GetGreaterOrEqual(1); key != nil || val != nil {
+		t.Error("greater or equal should be nil")
+	}
+
+	s.Insert(1, nil)
+	if key, val := s.GetGreaterOrEqual(8); key != nil || val != nil {
+		t.Error("greater or equal should be nil")
+	}
+
+	s.Insert(8, nil)
+	if key, val := s.GetGreaterOrEqual(8); key != 8 || val != nil {
+		t.Error("greater or equal should be 8")
+	}
+
+	if key, val := s.GetGreaterOrEqual(7); key != 8 || val != nil {
+		t.Error("greater or equal should be 8")
+	}
+}
+
 func TestGetMin(t *testing.T) {
-	s := New()
+	s := NewIntMap()
 	if key, val := s.GetMin(); key != nil || val != nil {
 		t.Error("min should be nil")
+	}
+
+	s.Insert(3, nil)
+	s.Insert(8, nil)
+	s.Insert(2, nil)
+	if key, val := s.GetMin(); key != 2 || val != nil {
+		t.Error("min should be 2")
 	}
 }
 
 func TestGetMax(t *testing.T) {
-	s := New()
+	s := NewIntMap()
 	if key, val := s.GetMax(); key != nil || val != nil {
 		t.Error("max should be nil")
+	}
+
+	s.Insert(3, nil)
+	s.Insert(8, nil)
+	s.Insert(2, nil)
+	if key, val := s.GetMax(); key != 8 || val != nil {
+		t.Error("max should be 8")
 	}
 }
