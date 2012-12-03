@@ -1,9 +1,19 @@
+// Read "Skip lists: a probabilistic alternative to balanced trees" and
+// "A skip list cookbook" by William Pugh.
 package skiplist
 
 // XXX: Benchmark fixed dice
-// XXX: Dump dot file
-
-// Ref: William Pugh "Skip lists: a probabilistic alternative to balanced trees"
+// XXX: Dump dot file (fichero separado)
+// XXX: Priority queue API, create a new type (fichero separado)
+// XXX: Multi-map/set function, create a new type (fichero separado)
+//
+// XXX: Merge operation
+//
+// Set: (fichero separado)
+// Add, Remove, Contains
+//
+// Heap: (fichero separado)
+// Peak(), Pop(), Push(value) use less() to order priorities
 
 import "math/rand"
 
@@ -110,3 +120,41 @@ func (s *SkipList) GetMax() (interface{}, interface{}) {
 	}
 	return current.key, current.value
 }
+
+
+
+
+
+
+
+
+func (s *SkipList) Insert(key, value interface{}) bool {
+	return s.insert(key, value, false)
+}
+
+
+
+func (s *SkipList) insert(key, value interface{}, multi bool) bool {
+
+	// XXX: panic if key == nil?
+
+	update := make([]*node, s.level() + 1)
+	candidate := s.getPath(update, key, true)
+
+	if candidate != nil && candidate.key == key && !multi {
+		candidate.value = value
+		return true
+	}
+
+	newLevel := s.randomLevel()
+
+
+
+
+
+
+	return false
+}
+
+
+// XXX: Delete
