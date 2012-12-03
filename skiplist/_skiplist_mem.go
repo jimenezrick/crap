@@ -27,7 +27,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "Usage:", os.Args[0], "-s|-m size")
+	fmt.Fprintln(os.Stderr, "Usage:", os.Args[0], "-s|-m <size>")
 	os.Exit(1)
 }
 

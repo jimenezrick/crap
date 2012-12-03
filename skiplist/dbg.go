@@ -7,9 +7,9 @@ import (
 
 func (s *SkipList) DumpASCII(w io.Writer) {
 	fmt.Fprintln(w, "--- Skip List ---")
-	fmt.Fprintln(w, "length   = %d", s.length)
-	fmt.Fprintln(w, "p        = %f", s.p)
-	fmt.Fprintln(w, "maxLevel = %d", s.maxLevel)
+	fmt.Fprintln(w, "length   =", s.length)
+	fmt.Fprintln(w, "p        =", s.p)
+	fmt.Fprintln(w, "maxLevel =", s.maxLevel)
 	fmt.Fprintln(w, "-----------------")
 	fmt.Fprintln(w)
 
@@ -37,7 +37,7 @@ func printNode(w io.Writer, node *node, levels int) {
 	fmt.Fprintf(w, "%v:\t", node.key)
 	for _, f := range node.forward {
 		if f != nil {
-			fmt.Fprintf(w, "[%v]\t", f.value)
+			fmt.Fprintf(w, "[%v]\t", f.key)
 		} else {
 			fmt.Fprintf(w, "[*]\t")
 		}
