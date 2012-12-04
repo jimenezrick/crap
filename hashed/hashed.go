@@ -15,32 +15,33 @@ type HashedReader interface {
 
 type HashedWriter interface {
 	hash.Hash
+	Flush() error
 }
 
-type SHA1FileWriter struct {
+type sha1FileWriter struct {
 	*bufio.Writer
 	hash.Hash
 }
 
-func NewSHA1FileWriter(file *os.File) *SHA1FileWriter {
-	return &SHA1FileWriter{bufio.NewWriter(file), sha1.New()}
+func NewSha1FileWriter(file *os.File) HashedWriter {
+	return &sha1FileWriter{bufio.NewWriter(file), sha1.New()}
 }
 
-func (sw *SHA1FileWriter) Write(b []byte) (int, error) {
+func (sw *sha1FileWriter) Write(b []byte) (int, error) {
 	sw.Hash.Write(b)
 	return sw.Writer.Write(b)
 }
 
-type SHA1FileReader struct {
+type sha1FileReader struct {
 	*bufio.Reader
 	hash.Hash
 }
 
-func NewSHA1FileReader(file *os.File) *SHA1FileReader {
-	return &SHA1FileReader{bufio.NewReader(file), sha1.New()}
+func NewSha1FileReader(file *os.File) HashedReader {
+	return &sha1FileReader{bufio.NewReader(file), sha1.New()}
 }
 
-func (sr *SHA1FileReader) Read(b []byte) (int, error) {
+func (sr *sha1FileReader) Read(b []byte) (int, error) {
 	n, err := sr.Reader.Read(b)
 	sr.Hash.Write(b[:n])
 	return n, err

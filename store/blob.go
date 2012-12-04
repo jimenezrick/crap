@@ -28,7 +28,7 @@ func (s Store) NewBlob() (*Blob, error) {
 		return nil, err
 	}
 
-	b := Blob{s, file, hashed.NewSHA1FileWriter(file)}
+	b := Blob{s, file, hashed.NewSha1FileWriter(file)}
 	runtime.SetFinalizer(&b, func(b *Blob) {
 		os.Remove(b.file.Name())
 	})
@@ -38,7 +38,7 @@ func (s Store) NewBlob() (*Blob, error) {
 
 func (b *Blob) Store() ([]byte, error) {
 	defer b.file.Close()
-	b.HashedWriter.(*hashed.SHA1FileWriter).Flush()
+	b.HashedWriter.Flush()
 
 	if err := b.file.Chmod(b.store.filePerm); err != nil {
 		return nil, err

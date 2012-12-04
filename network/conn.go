@@ -48,7 +48,7 @@ func (c *Conn) ReadByte() (byte, error) {
 }
 
 func (c *Conn) StoreBlob(file *os.File) (string, error) {
-	reader := hashed.NewSHA1FileReader(file)
+	reader := hashed.NewSha1FileReader(file)
 
 	info, err := file.Stat()
 	if err != nil {
