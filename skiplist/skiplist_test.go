@@ -300,6 +300,7 @@ func BenchmarkInsert(b *testing.B) {
 	b.StopTimer()
 	ints := rand.Perm(b.N)
 	s := NewIntMap()
+	s.SetMaxLevel(uint(b.N))
 
 	b.StartTimer()
 	buildFromList(s, ints)
@@ -309,6 +310,7 @@ func BenchmarkDelete(b *testing.B) {
 	b.StopTimer()
 	ints := rand.Perm(b.N)
 	s := NewIntMap()
+	s.SetMaxLevel(uint(b.N))
 	buildFromList(s, ints)
 
 	b.StartTimer()
@@ -321,6 +323,7 @@ func BenchmarkLookup(b *testing.B) {
 	b.StopTimer()
 	ints := rand.Perm(b.N)
 	s := NewIntMap()
+	s.SetMaxLevel(uint(b.N))
 	buildFromList(s, ints)
 
 	b.StartTimer()
