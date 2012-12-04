@@ -37,6 +37,16 @@ func Connect(addr string) (*Conn, error) {
 	return newConn(nil, sock), nil
 }
 
+func (c *Conn) ReadByte() (byte, error) {
+	buf := make([]byte, 1)
+	_, err := c.Read(buf)
+	if err != nil {
+		return 0, err
+	}
+
+	return byte(buf[0]), nil
+}
+
 func (c *Conn) StoreBlob(file *os.File) (string, error) {
 	reader := hashed.NewSHA1FileReader(file)
 
@@ -49,7 +59,7 @@ func (c *Conn) StoreBlob(file *os.File) (string, error) {
 		return "", err
 	}
 
-	if err := c.WriteBlobFrameFrom(reader, uint32(info.Size())); err != nil {
+	if err := c.WriteBlobFrameFrom(reader, uint64(info.Size())); err != nil {
 		return "", err
 	}
 

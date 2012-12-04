@@ -14,16 +14,24 @@ const maxJSONSize = 4096
 var errSize error = errors.New("network: frame too big")
 var errMoreData error = errors.New("network: expecting more frame data")
 
-func (c *Conn) readFrameSize() (size uint32, err error) {
-	err = binary.Read(c, binary.BigEndian, &size)
+func (c *Conn) readFrameSize() (size uint64, err error) {
+	size, err = binary.ReadUvarint(c)
 	return
 }
 
-func (c *Conn) writeFrameSize(size uint32) error {
-	return binary.Write(c, binary.BigEndian, size)
+func (c *Conn) writeFrameSize(size uint64) error {
+	buf := make([]byte, binary.MaxVarintLen64)
+	n := binary.PutUvarint(buf, size)
+	buf = buf[:n]
+
+	_, err := c.Write(buf)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (c *Conn) readFrameBody(max uint32) ([]byte, error) {
+func (c *Conn) readFrameBody(max uint64) ([]byte, error) {
 	size, err := c.readFrameSize()
 	if err != nil {
 		return nil, err
@@ -35,7 +43,7 @@ func (c *Conn) readFrameBody(max uint32) ([]byte, error) {
 
 	buf := make([]byte, size)
 	n, err := io.ReadFull(c, buf)
-	if uint32(n) != size {
+	if uint64(n) != size {
 		return nil, errMoreData
 	} else if err != nil {
 		return nil, err
@@ -45,7 +53,7 @@ func (c *Conn) readFrameBody(max uint32) ([]byte, error) {
 }
 
 func (c *Conn) writeFrameBody(body []byte) error {
-	if err := c.writeFrameSize(uint32(len(body))); err != nil {
+	if err := c.writeFrameSize(uint64(len(body))); err != nil {
 		return err
 	}
 
@@ -93,7 +101,7 @@ func (c *Conn) ReadBlobFrameTo(to io.Writer) error {
 	}
 
 	n, err := io.CopyN(to, c, int64(size))
-	if n != int64(size) {
+	if uint64(n) != size {
 		return errMoreData
 	} else if err != nil {
 		return err
@@ -103,7 +111,7 @@ func (c *Conn) ReadBlobFrameTo(to io.Writer) error {
 	return nil
 }
 
-func (c *Conn) WriteBlobFrameFrom(from io.Reader, size uint32) error {
+func (c *Conn) WriteBlobFrameFrom(from io.Reader, size uint64) error {
 	err := c.writeFrameSize(size)
 	if err != nil {
 		return err
