@@ -1,6 +1,9 @@
 package skiplist
 
-import "testing"
+import (
+	"math/rand"
+	"testing"
+)
 
 func TestSetMaxLevel(t *testing.T) {
 	s := New()
@@ -48,6 +51,7 @@ func TestLevel(t *testing.T) {
 	}
 }
 
+/*
 func TestRandomLevel(t *testing.T) {
 	s := New()
 	s.SetP(1.0)
@@ -56,6 +60,7 @@ func TestRandomLevel(t *testing.T) {
 		t.Error("random level should be 2")
 	}
 }
+*/
 
 func TestGetPath(t *testing.T) {
 	s := NewIntMap()
@@ -282,5 +287,44 @@ func TestHeap(t *testing.T) {
 
 	if h.Peek() != nil {
 		t.Error("peek should be nil")
+	}
+}
+
+func buildFromList(s *SkipList, ints []int) {
+	for _, i := range ints {
+		s.Insert(i, nil)
+	}
+}
+
+func BenchmarkInsert(b *testing.B) {
+	b.StopTimer()
+	ints := rand.Perm(b.N)
+	s := NewIntMap()
+
+	b.StartTimer()
+	buildFromList(s, ints)
+}
+
+func BenchmarkDelete(b *testing.B) {
+	b.StopTimer()
+	ints := rand.Perm(b.N)
+	s := NewIntMap()
+	buildFromList(s, ints)
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		s.Delete(ints[i])
+	}
+}
+
+func BenchmarkLookup(b *testing.B) {
+	b.StopTimer()
+	ints := rand.Perm(b.N)
+	s := NewIntMap()
+	buildFromList(s, ints)
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		s.Get(ints[i])
 	}
 }
