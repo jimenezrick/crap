@@ -13,15 +13,15 @@ type ConfigError struct {
 	Err error
 }
 
-type KVMap struct {
+type kvMap struct {
 	kvmap.KVMap
 }
 
-func New() *KVMap {
-	return &KVMap{*kvmap.New()}
+func New() *kvMap {
+	return &kvMap{*kvmap.New()}
 }
 
-func (kv KVMap) GetBool(key string) bool {
+func (kv kvMap) GetBool(key string) bool {
 	b, err := kv.KVMap.GetBool(key)
 	if err != nil {
 		panic(ConfigError{err})
@@ -29,7 +29,7 @@ func (kv KVMap) GetBool(key string) bool {
 	return b
 }
 
-func (kv KVMap) GetInt(key string) int {
+func (kv kvMap) GetInt(key string) int {
 	i, err := kv.KVMap.GetInt(key)
 	if err != nil {
 		panic(ConfigError{err})
@@ -37,7 +37,7 @@ func (kv KVMap) GetInt(key string) int {
 	return i
 }
 
-func (kv KVMap) GetString(key string) string {
+func (kv kvMap) GetString(key string) string {
 	s, err := kv.KVMap.GetString(key)
 	if err != nil {
 		panic(ConfigError{err})
@@ -45,7 +45,7 @@ func (kv KVMap) GetString(key string) string {
 	return s
 }
 
-func (kv KVMap) GetIntString(key string) int {
+func (kv kvMap) GetIntString(key string) int {
 	i, err := kv.KVMap.GetIntString(key)
 	if err != nil {
 		panic(ConfigError{err})

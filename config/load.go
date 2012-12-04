@@ -7,7 +7,7 @@ import (
 
 import "crap/kvmap"
 
-func defaultConfig() *KVMap {
+func defaultConfig() *kvMap {
 	config := New()
 
 	config.Set("log.debug", true)
@@ -20,7 +20,7 @@ func defaultConfig() *KVMap {
 	return config
 }
 
-func mergeConfigFile(config *KVMap, name string) {
+func mergeConfigFile(config *kvMap, name string) {
 	if kvmap, err := kvmap.LoadJSONFile(name); err == nil {
 		config.Merge(kvmap)
 		fmt.Println("Config file", name, "loaded") // TODO: Check verbose flag
