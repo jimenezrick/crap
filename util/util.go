@@ -12,15 +12,6 @@ const (
 	FALLOC_FL_PUNCH_HOLE
 )
 
-const (
-	POSIX_FADV_NORMAL = iota
-	POSIX_FADV_RANDOM
-	POSIX_FADV_SEQUENTIAL
-	POSIX_FADV_WILLNEED
-	POSIX_FADV_DONTNEED
-	POSIX_FADV_NOREUSE
-)
-
 func Fdatasync(file *os.File) error {
 	return syscall.Fdatasync(int(file.Fd()))
 }
@@ -37,14 +28,6 @@ func Datasync(name string) error {
 
 func Fallocate(file *os.File, size uint64) error {
 	return syscall.Fallocate(int(file.Fd()), FALLOC_FL_KEEP_SIZE, 0, int64(size))
-}
-
-func Fadvise(file *os.File, off, len uint64, advice uint32) error {
-	_, _, errno := syscall.Syscall6(syscall.SYS_FADVISE64, file.Fd(), uintptr(off), uintptr(len), uintptr(advice), 0, 0)
-	if errno != 0 {
-		return errno
-	}
-	return nil
 }
 
 func FileExist(name string) (bool, error) {
