@@ -56,7 +56,7 @@ func (c *Conn) StoreBlob(file *os.File) (string, error) {
 	}
 	size := uint64(info.Size())
 
-	if err := c.WriteJSONFrame(request{"store", "after", size, false}); err != nil {
+	if err := c.WriteJSONFrame(request{"store", "", size, false}); err != nil {
 		return "", err
 	}
 
