@@ -1,5 +1,9 @@
 package store
 
+// XXX: Copiar metadatos en JSON en blobs/xx/xxxxxxxxxxxxxxxxx.meta
+// XXX: Sacar de Store() los syncs y crear sync() para blob.sync dest_dir.sync
+//      El sync() se tiene que ejecutar despues del Store()
+
 // XXX: Encrypt AES
 // XXX: Conn SSL
 // XXX: Retrieve(key string) *Blob
@@ -43,7 +47,7 @@ func (b *Blob) Store() ([]byte, error) {
 	if err := b.file.Chmod(b.store.filePerm); err != nil {
 		return nil, err
 	}
-	if err := b.file.Sync(); err != nil {
+	if err := util.Fdatasync(b.file); err != nil {
 		return nil, err
 	}
 
@@ -61,7 +65,7 @@ func (b *Blob) Store() ([]byte, error) {
 	if err := os.Rename(src, dest); err != nil {
 		return nil, err
 	}
-	if err := util.SyncFile(path.Dir(dest)); err != nil {
+	if err := util.Datasync(path.Dir(dest)); err != nil {
 		return nil, err
 	}
 

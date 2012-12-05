@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"hash"
 	"os"
+	"syscall"
 )
 
-func SyncFile(name string) error {
-	dir, err := os.Open(name)
+func Fdatasync(file *os.File) error {
+	return syscall.Fdatasync(int(file.Fd()))
+}
+
+func Datasync(name string) error {
+	file, err := os.Open(name)
 	if err != nil {
 		return err
 	}
-	defer dir.Close()
+	defer file.Close()
 
-	if err := dir.Sync(); err != nil {
-		return err
-	}
-
-	return nil
+	return Fdatasync(file)
 }
 
 func FileExist(name string) (bool, error) {

@@ -26,7 +26,7 @@ func (s Store) initStore() error {
 		return err
 	}
 
-	if err := util.SyncFile(s.crapPath()); err != nil {
+	if err := util.Datasync(s.crapPath()); err != nil {
 		return err
 	}
 
