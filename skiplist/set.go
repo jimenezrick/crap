@@ -31,6 +31,6 @@ func (s *Set) InsertMulti(key Key) bool {
 }
 
 func (s *Set) Contains(key Key) bool {
-	_, ok := s.SkipList.Get(key)
+	_, ok := s.SkipList.Lookup(key)
 	return ok
 }

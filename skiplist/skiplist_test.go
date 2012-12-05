@@ -51,7 +51,6 @@ func TestLevel(t *testing.T) {
 	}
 }
 
-/*
 func TestRandomLevel(t *testing.T) {
 	s := New()
 	s.SetP(1.0)
@@ -60,7 +59,6 @@ func TestRandomLevel(t *testing.T) {
 		t.Error("random level should be 2")
 	}
 }
-*/
 
 func TestGetPath(t *testing.T) {
 	s := NewIntMap()
@@ -103,9 +101,9 @@ func TestGetPath(t *testing.T) {
 	}
 }
 
-func TestGet(t *testing.T) {
+func TestLookup(t *testing.T) {
 	s := NewIntMap()
-	if val, ok := s.Get(1); ok || val != nil {
+	if val, ok := s.Lookup(1); ok || val != nil {
 		t.Error("value should be nil")
 	}
 
@@ -123,80 +121,80 @@ func TestGet(t *testing.T) {
 		t.Error("value should be nil")
 	}
 
-	if val, ok := s.Get(1); !ok || val != 666 {
+	if val, ok := s.Lookup(1); !ok || val != 666 {
 		t.Error("value should be 666")
 	}
-	if val, ok := s.Get(2); !ok || val != 666 {
+	if val, ok := s.Lookup(2); !ok || val != 666 {
 		t.Error("value should be 666")
 	}
 }
 
-func TestGetLesser(t *testing.T) {
+func TestLesser(t *testing.T) {
 	s := NewIntMap()
-	if key, val := s.GetLesser(1); key != nil || val != nil {
+	if key, val := s.Lesser(1); key != nil || val != nil {
 		t.Error("lesser should be nil")
 	}
 
 	s.Insert(1, nil)
-	if key, val := s.GetLesser(1); key != nil || val != nil {
+	if key, val := s.Lesser(1); key != nil || val != nil {
 		t.Error("lesser should be nil")
 	}
 
 	s.Insert(2, nil)
-	if key, val := s.GetLesser(2); key != 1 || val != nil {
+	if key, val := s.Lesser(2); key != 1 || val != nil {
 		t.Error("lesser should be 1")
 	}
 
-	if key, val := s.GetLesser(8); key != 2 || val != nil {
+	if key, val := s.Lesser(8); key != 2 || val != nil {
 		t.Error("lesser should be 2")
 	}
 }
 
-func TestGetGreaterOrEqual(t *testing.T) {
+func TestGreaterOrEqual(t *testing.T) {
 	s := NewIntMap()
-	if key, val := s.GetGreaterOrEqual(1); key != nil || val != nil {
+	if key, val := s.GreaterOrEqual(1); key != nil || val != nil {
 		t.Error("greater or equal should be nil")
 	}
 
 	s.Insert(1, nil)
-	if key, val := s.GetGreaterOrEqual(8); key != nil || val != nil {
+	if key, val := s.GreaterOrEqual(8); key != nil || val != nil {
 		t.Error("greater or equal should be nil")
 	}
 
 	s.Insert(8, nil)
-	if key, val := s.GetGreaterOrEqual(8); key != 8 || val != nil {
+	if key, val := s.GreaterOrEqual(8); key != 8 || val != nil {
 		t.Error("greater or equal should be 8")
 	}
 
-	if key, val := s.GetGreaterOrEqual(7); key != 8 || val != nil {
+	if key, val := s.GreaterOrEqual(7); key != 8 || val != nil {
 		t.Error("greater or equal should be 8")
 	}
 }
 
-func TestGetMin(t *testing.T) {
+func TestMin(t *testing.T) {
 	s := NewIntMap()
-	if key, val := s.GetMin(); key != nil || val != nil {
+	if key, val := s.Min(); key != nil || val != nil {
 		t.Error("min should be nil")
 	}
 
 	s.Insert(3, nil)
 	s.Insert(8, nil)
 	s.Insert(2, nil)
-	if key, val := s.GetMin(); key != 2 || val != nil {
+	if key, val := s.Min(); key != 2 || val != nil {
 		t.Error("min should be 2")
 	}
 }
 
-func TestGetMax(t *testing.T) {
+func TestMax(t *testing.T) {
 	s := NewIntMap()
-	if key, val := s.GetMax(); key != nil || val != nil {
+	if key, val := s.Max(); key != nil || val != nil {
 		t.Error("max should be nil")
 	}
 
 	s.Insert(3, nil)
 	s.Insert(8, nil)
 	s.Insert(2, nil)
-	if key, val := s.GetMax(); key != 8 || val != nil {
+	if key, val := s.Max(); key != 8 || val != nil {
 		t.Error("max should be 8")
 	}
 }
@@ -328,6 +326,6 @@ func BenchmarkLookup(b *testing.B) {
 
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		s.Get(ints[i])
+		s.Lookup(ints[i])
 	}
 }

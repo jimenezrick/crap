@@ -36,6 +36,8 @@ type Blob struct {
 // XXX XXX XXX
 func (s Store) NewBlobSize(size uint64) (*Blob, error) {
 	return s.NewBlob()
+
+	// fallocate, fadvise
 }
 // XXX XXX XXX
 

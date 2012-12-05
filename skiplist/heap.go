@@ -25,7 +25,7 @@ func (h *Heap) Pop() Key {
 }
 
 func (h *Heap) Peek() Key {
-	key, _ := h.SkipList.GetMin()
+	key, _ := h.SkipList.Min()
 	return key
 }
 
@@ -34,6 +34,6 @@ func (h *Heap) Push(item Key) {
 }
 
 func (h *Heap) Contains(item Key) bool {
-	_, ok := h.SkipList.Get(item)
+	_, ok := h.SkipList.Lookup(item)
 	return ok
 }
