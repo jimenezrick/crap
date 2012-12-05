@@ -35,7 +35,7 @@ type Blob struct {
 
 // XXX XXX XXX
 func (s Store) NewBlobSize(size uint64) (*Blob, error) {
-	return nil, nil
+	return NewBlob()
 }
 // XXX XXX XXX
 
