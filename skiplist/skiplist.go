@@ -2,10 +2,6 @@
 // "A skip list cookbook" by William Pugh.
 package skiplist
 
-//
-// XXX: Merge operation
-//
-
 import "math/rand"
 
 func (s *SkipList) SetP(p float64) {

@@ -1,7 +1,3 @@
-* Append-log:
-	Write + sync entry: [CRC][Size][Payload][Size]["crap"]
-	Exponential backwards repair?
-
 * Blob index:
 	date -> {key, tags list}
 	Index in memory map from log located at crap/index/
