@@ -1,10 +1,6 @@
 package store
 
 //
-// XXX: NewBlobSize() -> util.Fallocate()
-//
-
-//
 // XXX: Copiar metadatos en JSON en blobs/xx/xxxxxxxxxxxxxxxxx.meta
 //
 
@@ -30,21 +26,17 @@ type Blob struct {
 	hashed.HashedWriter
 }
 
-
-
-
-// XXX XXX XXX
 func (s Store) NewBlobSize(size uint64) (*Blob, error) {
-	return s.NewBlob()
+	b, err := s.NewBlob()
+	if err != nil {
+		return nil, err
+	}
 
-	// fallocate, fadvise
+	if err := util.Fallocate(b.file, size); err != nil {
+		return nil, err
+	}
+	return b, nil
 }
-// XXX XXX XXX
-
-
-
-
-
 
 func (s Store) NewBlob() (*Blob, error) {
 	file, err := ioutil.TempFile(s.tempPath(), "blob")
