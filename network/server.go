@@ -1,5 +1,6 @@
 package network
 
+// XXX: Poner un timeout a la conexion para que se cierre sola
 // XXX: Recover from panic
 
 import (
@@ -49,7 +50,7 @@ func (c *Conn) handleConnection() {
 
 	switch req.Val {
 	case "store":
-		if err := c.handleStore(); os.IsExist(err) {
+		if err := c.handleStore(req); os.IsExist(err) {
 			c.respondBlobExist()
 		} else if err != nil {
 			c.respondError(err)
@@ -60,10 +61,19 @@ func (c *Conn) handleConnection() {
 	}
 }
 
-func (c *Conn) handleStore() error {
+func (c *Conn) handleStore(req request) error {
 	log.Info.Printf("Store request from %s", c.sock.RemoteAddr())
 
-	blob, err := c.store.NewBlob()
+	var (
+		blob *store.Blob
+		err error
+	)
+
+	if req.Size == 0 {
+		blob, err = c.store.NewBlob()
+	} else{
+		blob, err = c.store.NewBlobSize(req.Size)
+	}
 	if err != nil {
 		return err
 	}
@@ -79,18 +89,24 @@ func (c *Conn) handleStore() error {
 		return err
 	}
 
-	var key keyRequest
-	if err := c.ReadJSONFrame(&key); err != nil {
-		return err
+	var key string
+	if req.Key != "" {
+		key = req.Key
+	} else {
+		var keyReq request
+		if err := c.ReadJSONFrame(&keyReq); err != nil {
+			return err
+		}
+		key = keyReq.Key
 	}
 
 	blobKey := util.HexHash(blob)
-	if key.Val != blobKey {
+	if key != blobKey {
 		c.respondIncorrectKey()
 		return nil
 	}
 
-	if _, err := blob.Store(); err != nil {
+	if _, err := blob.Store(req.Sync); err != nil {
 		return err
 	}
 	log.Info.Printf("Blob %s stored by %s", blobKey, c.sock.RemoteAddr())

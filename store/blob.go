@@ -1,8 +1,12 @@
 package store
 
+//
+// XXX: NewBlobSize() -> util.Fallocate()
+//
+
+//
 // XXX: Copiar metadatos en JSON en blobs/xx/xxxxxxxxxxxxxxxxx.meta
-// XXX: Sacar de Store() los syncs y crear sync() para blob.sync dest_dir.sync
-//      El sync() se tiene que ejecutar despues del Store()
+//
 
 // XXX: Encrypt AES
 // XXX: Conn SSL
@@ -26,6 +30,20 @@ type Blob struct {
 	hashed.HashedWriter
 }
 
+
+
+
+// XXX XXX XXX
+func (s Store) NewBlobSize(size uint64) (*Blob, error) {
+	return nil, nil
+}
+// XXX XXX XXX
+
+
+
+
+
+
 func (s Store) NewBlob() (*Blob, error) {
 	file, err := ioutil.TempFile(s.tempPath(), "blob")
 	if err != nil {
@@ -40,15 +58,18 @@ func (s Store) NewBlob() (*Blob, error) {
 	return &b, nil
 }
 
-func (b *Blob) Store() ([]byte, error) {
+func (b *Blob) Store(sync bool) ([]byte, error) {
 	defer b.file.Close()
 	b.HashedWriter.Flush()
 
 	if err := b.file.Chmod(b.store.filePerm); err != nil {
 		return nil, err
 	}
-	if err := util.Fdatasync(b.file); err != nil {
-		return nil, err
+
+	if sync {
+		if err := util.Fdatasync(b.file); err != nil {
+			return nil, err
+		}
 	}
 
 	src := b.file.Name()
@@ -57,16 +78,17 @@ func (b *Blob) Store() ([]byte, error) {
 	if err := os.MkdirAll(path.Dir(dest), b.store.dirPerm); err != nil {
 		return nil, err
 	}
-
 	if err := b.lock(); err != nil {
 		return b.Sum(nil), err
 	}
-
 	if err := os.Rename(src, dest); err != nil {
 		return nil, err
 	}
-	if err := util.Datasync(path.Dir(dest)); err != nil {
-		return nil, err
+
+	if sync {
+		if err := util.Datasync(path.Dir(dest)); err != nil {
+			return nil, err
+		}
 	}
 
 	runtime.SetFinalizer(b, nil)

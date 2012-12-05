@@ -3,11 +3,10 @@ package network
 import "errors"
 
 type request struct {
-	Val string `json:"request"`
-}
-
-type keyRequest struct {
-	Val string `json:"key"`
+	Val string `json:"request,omitempty"`
+	Key string `json:"key,omitempty"`
+	Size uint64 `json:"size,omitempty"`
+	Sync bool `json:"sync,omitempty"`
 }
 
 type response struct {

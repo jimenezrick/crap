@@ -54,17 +54,18 @@ func (c *Conn) StoreBlob(file *os.File) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	size := uint64(info.Size())
 
-	if err := c.WriteJSONFrame(request{"store"}); err != nil {
+	if err := c.WriteJSONFrame(request{"store", "after", size, false}); err != nil {
 		return "", err
 	}
 
-	if err := c.WriteBlobFrameFrom(reader, uint64(info.Size())); err != nil {
+	if err := c.WriteBlobFrameFrom(reader, size); err != nil {
 		return "", err
 	}
 
 	key := util.HexHash(reader)
-	if err := c.WriteJSONFrame(keyRequest{key}); err != nil {
+	if err := c.WriteJSONFrame(request{Key: key}); err != nil {
 		return "", err
 	}
 
