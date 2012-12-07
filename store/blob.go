@@ -32,9 +32,13 @@ func (s Store) NewBlobSize(size int64) (*Blob, error) {
 		return nil, err
 	}
 
-	if err := util.Fallocate(b.file, size); err != nil {
+	if err := util.Fallocate(b.file, util.FALLOC_FL_KEEP_SIZE, 0, size); err != nil {
 		return nil, err
 	}
+	if err := util.Fadvise(b.file, 0, size, util.POSIX_FADV_DONTNEED); err != nil {
+		return nil, err
+	}
+
 	return b, nil
 }
 
