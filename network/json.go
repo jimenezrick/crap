@@ -5,7 +5,7 @@ import "errors"
 type request struct {
 	Val string `json:"request,omitempty"`
 	Key string `json:"key,omitempty"`
-	Size uint64 `json:"size,omitempty"`
+	Size int64 `json:"size,omitempty"`
 	Sync bool `json:"sync,omitempty"`
 }
 

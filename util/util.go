@@ -26,8 +26,8 @@ func Datasync(name string) error {
 	return Fdatasync(file)
 }
 
-func Fallocate(file *os.File, size uint64) error {
-	return syscall.Fallocate(int(file.Fd()), FALLOC_FL_KEEP_SIZE, 0, int64(size))
+func Fallocate(file *os.File, size int64) error {
+	return syscall.Fallocate(int(file.Fd()), FALLOC_FL_KEEP_SIZE, 0, size)
 }
 
 func FileExist(name string) (bool, error) {

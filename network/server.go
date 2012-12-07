@@ -2,6 +2,7 @@ package network
 
 // XXX: Poner un timeout a la conexion para que se cierre sola
 // XXX: Recover from panic
+// XXX: Proteger contra tamaños negativos y esas cosas
 
 import (
 	"net"

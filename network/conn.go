@@ -1,5 +1,7 @@
 package network
 
+// XXX: Recibir de la config si se hace sync
+
 import (
 	"bufio"
 	"io"
@@ -54,7 +56,7 @@ func (c *Conn) StoreBlob(file *os.File) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	size := uint64(info.Size())
+	size = info.Size()
 
 	if err := c.WriteJSONFrame(request{"store", "", size, false}); err != nil {
 		return "", err

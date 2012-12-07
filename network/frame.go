@@ -14,14 +14,14 @@ const maxJSONSize = 4096
 var errSize error = errors.New("network: frame too big")
 var errMoreData error = errors.New("network: expecting more frame data")
 
-func (c *Conn) readFrameSize() (size uint64, err error) {
-	size, err = binary.ReadUvarint(c)
-	return
+func (c *Conn) readFrameSize() (int64, error) {
+	size, err := binary.ReadUvarint(c)
+	return int64(size), err
 }
 
-func (c *Conn) writeFrameSize(size uint64) error {
+func (c *Conn) writeFrameSize(size int64) error {
 	buf := make([]byte, binary.MaxVarintLen64)
-	n := binary.PutUvarint(buf, size)
+	n := binary.PutUvarint(buf, uint64(size))
 	buf = buf[:n]
 
 	_, err := c.Write(buf)
@@ -31,7 +31,7 @@ func (c *Conn) writeFrameSize(size uint64) error {
 	return nil
 }
 
-func (c *Conn) readFrameBody(max uint64) ([]byte, error) {
+func (c *Conn) readFrameBody(max int64) ([]byte, error) {
 	size, err := c.readFrameSize()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (c *Conn) readFrameBody(max uint64) ([]byte, error) {
 
 	buf := make([]byte, size)
 	n, err := io.ReadFull(c, buf)
-	if uint64(n) != size {
+	if int64(n) != size {
 		return nil, errMoreData
 	} else if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (c *Conn) readFrameBody(max uint64) ([]byte, error) {
 }
 
 func (c *Conn) writeFrameBody(body []byte) error {
-	if err := c.writeFrameSize(uint64(len(body))); err != nil {
+	if err := c.writeFrameSize(int64(len(body))); err != nil {
 		return err
 	}
 
@@ -100,8 +100,8 @@ func (c *Conn) ReadBlobFrameTo(to io.Writer) error {
 		return err
 	}
 
-	n, err := io.CopyN(to, c, int64(size))
-	if uint64(n) != size {
+	n, err := io.CopyN(to, c, size)
+	if n != size {
 		return errMoreData
 	} else if err != nil {
 		return err
@@ -111,13 +111,13 @@ func (c *Conn) ReadBlobFrameTo(to io.Writer) error {
 	return nil
 }
 
-func (c *Conn) WriteBlobFrameFrom(from io.Reader, size uint64) error {
+func (c *Conn) WriteBlobFrameFrom(from io.Reader, size int64) error {
 	err := c.writeFrameSize(size)
 	if err != nil {
 		return err
 	}
 
-	_, err = io.CopyN(c, from, int64(size))
+	_, err = io.CopyN(c, from, size)
 	if err != nil {
 		return err
 	}

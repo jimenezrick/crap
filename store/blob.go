@@ -26,7 +26,7 @@ type Blob struct {
 	hashed.HashedWriter
 }
 
-func (s Store) NewBlobSize(size uint64) (*Blob, error) {
+func (s Store) NewBlobSize(size int64) (*Blob, error) {
 	b, err := s.NewBlob()
 	if err != nil {
 		return nil, err
