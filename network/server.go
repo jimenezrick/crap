@@ -25,9 +25,7 @@ func Listen(config config.Config, store *store.Store) (net.Listener, error) {
 	go func() {
 		for {
 			sock, err := lis.Accept()
-			if IsClosing(err) {
-				return
-			} else if err != nil {
+			if err != nil {
 				panic(err)
 			}
 

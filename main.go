@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
+	"os/signal"
+	"syscall"
 )
 
 import (
@@ -40,13 +41,12 @@ func server() {
 	}
 	defer store.Close()
 
-	listener, err := network.Listen(config, store)
+	_, err = network.Listen(config, store)
 	if err != nil {
 		panic(err)
 	}
-	defer listener.Close()
 
-	time.Sleep(60 * time.Second)
+	handleSignals()
 }
 
 func client() {
@@ -69,4 +69,10 @@ func client() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func handleSignals() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	<-c
 }
