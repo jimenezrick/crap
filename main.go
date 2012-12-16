@@ -12,6 +12,7 @@ import (
 	"crap/log"
 	"crap/network"
 	"crap/store"
+	"crap/lsmtree"
 )
 
 var configFiles []string = []string{"/etc/crap/config.json", "config.json"}
@@ -35,7 +36,7 @@ func server() {
 	config := config.LoadConfig(configFiles)
 	log.Init(config)
 
-	store, err := store.Open(config)
+	store, err := store.Open(config, lsmtree.New())
 	if err != nil {
 		panic(err)
 	}
